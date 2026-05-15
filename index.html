@@ -3,1801 +3,2013 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Medical Viva Examiner</title>
+    <title>MedViva AI</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        :root {
-            --primary: #667eea;
-            --secondary: #764ba2;
-            --success: #28a745;
-            --warning: #ffc107;
-            --danger: #dc3545;
-            --light: #f8f9fa;
-            --dark: #333;
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{
+            --p:#4f46e5;--p2:#7c3aed;--s:#059669;--w:#d97706;
+            --r:#dc2626;--bg:#f1f5f9;--card:#fff;--dark:#1e293b;
+            --mid:#64748b;--border:#e2e8f0;--light:#f8fafc
+        }
+        body{
+            font-family:'Segoe UI',system-ui,sans-serif;
+            background:var(--bg);min-height:100vh;
+            background-image:
+                radial-gradient(ellipse at 20% 50%,rgba(79,70,229,.07) 0%,transparent 60%),
+                radial-gradient(ellipse at 80% 20%,rgba(124,58,237,.05) 0%,transparent 50%)
+        }
+        .wrap{max-width:960px;margin:0 auto;padding:16px}
+        .page{display:none}.page.on{display:block}
+
+        /* TOPBAR */
+        .topbar{
+            display:flex;align-items:center;justify-content:space-between;
+            background:linear-gradient(135deg,var(--p),var(--p2));
+            color:#fff;padding:18px 24px;border-radius:16px;
+            margin-bottom:20px;box-shadow:0 4px 20px rgba(79,70,229,.3);
+            flex-wrap:wrap;gap:10px
+        }
+        .topbar h1{font-size:20px;font-weight:700}
+        .topbar p{font-size:13px;opacity:.85;margin-top:2px}
+
+        /* CARDS */
+        .card{
+            background:var(--card);border-radius:16px;padding:24px;
+            margin:14px 0;box-shadow:0 2px 12px rgba(0,0,0,.06);
+            border:1px solid var(--border)
+        }
+        .card h3{
+            font-size:16px;font-weight:700;color:var(--dark);
+            margin-bottom:14px;display:flex;align-items:center;gap:8px
         }
 
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 10px;
+        /* STATS */
+        .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 0}
+        .stat{
+            background:linear-gradient(135deg,var(--p),var(--p2));
+            color:#fff;padding:18px;border-radius:14px;text-align:center
+        }
+        .stat .n{font-size:34px;font-weight:800;line-height:1}
+        .stat .l{font-size:12px;opacity:.85;margin-top:4px}
+
+        /* INPUTS */
+        input[type=text],input[type=password],input[type=email],
+        textarea,select{
+            width:100%;padding:12px 14px;border:2px solid var(--border);
+            border-radius:10px;font-size:15px;font-family:inherit;
+            background:#fff;color:var(--dark);margin:6px 0;
+            transition:border-color .2s,box-shadow .2s
+        }
+        input:focus,select:focus,textarea:focus{
+            outline:none;border-color:var(--p);
+            box-shadow:0 0 0 3px rgba(79,70,229,.1)
+        }
+        label{
+            font-size:14px;font-weight:600;color:var(--dark);
+            display:block;margin-top:10px
         }
 
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            min-height: 90vh;
+        /* BUTTONS */
+        .btn{
+            display:inline-flex;align-items:center;justify-content:center;
+            gap:8px;padding:12px 20px;border-radius:10px;border:none;
+            font-size:15px;font-weight:600;cursor:pointer;
+            transition:all .2s;width:100%;margin:6px 0;
+            font-family:inherit
+        }
+        .btn:hover{filter:brightness(1.08);transform:translateY(-1px)}
+        .btn:active{transform:translateY(0);filter:brightness(.98)}
+        .btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+        .btn-p{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;
+            box-shadow:0 4px 14px rgba(79,70,229,.35)}
+        .btn-s{background:linear-gradient(135deg,#059669,#047857);color:#fff;
+            box-shadow:0 4px 14px rgba(5,150,105,.3)}
+        .btn-r{background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;
+            box-shadow:0 4px 14px rgba(220,38,38,.3)}
+        .btn-w{background:linear-gradient(135deg,#d97706,#b45309);color:#fff}
+        .btn-g{background:linear-gradient(135deg,#475569,#334155);color:#fff}
+        .btn-sm{width:auto;padding:8px 16px;font-size:13px;margin:4px}
+
+        /* LOGIN */
+        .login-wrap{
+            min-height:100vh;display:flex;align-items:center;
+            justify-content:center;padding:20px
+        }
+        .login-box{
+            background:#fff;border-radius:24px;padding:48px 40px;
+            width:100%;max-width:400px;
+            box-shadow:0 20px 60px rgba(79,70,229,.15);
+            border:1px solid var(--border)
+        }
+        .login-logo{
+            width:80px;height:80px;
+            background:linear-gradient(135deg,var(--p),var(--p2));
+            border-radius:20px;display:flex;align-items:center;
+            justify-content:center;font-size:38px;margin:0 auto 24px
+        }
+        .login-box h2{
+            text-align:center;font-size:24px;font-weight:800;
+            color:var(--dark);margin-bottom:6px
+        }
+        .login-box .sub{
+            text-align:center;color:var(--mid);font-size:14px;margin-bottom:28px
+        }
+        .login-err{
+            background:#fef2f2;border:1px solid #fecaca;
+            border-radius:8px;padding:10px 14px;font-size:14px;
+            color:#dc2626;margin-top:8px;display:none
         }
 
-        .page { display: none; }
-        .page.active { display: block; }
+        /* DROP ZONE */
+        .drop-zone{
+            border:2px dashed var(--p);border-radius:14px;padding:36px;
+            text-align:center;cursor:pointer;transition:all .2s;
+            background:rgba(79,70,229,.03)
+        }
+        .drop-zone:hover,.drop-zone.over{
+            background:rgba(79,70,229,.08);border-color:var(--p2);
+            transform:scale(1.01)
+        }
+        .drop-zone .dz-icon{font-size:44px;margin-bottom:10px}
+        .drop-zone p{color:var(--mid);font-size:14px;line-height:1.6}
+        .drop-zone strong{color:var(--p)}
 
-        h1 { color: var(--primary); text-align: center; margin-bottom: 20px; font-size: 26px; }
-        h2, h3 { color: var(--primary); margin: 15px 0 8px 0; }
-
-        input[type="text"],
-        input[type="password"],
-        input[type="email"],
-        textarea,
-        select {
-            width: 100%;
-            padding: 12px;
-            margin: 8px 0;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            font-size: 16px;
-            font-family: inherit;
-            background: white;
+        /* PROGRESS */
+        .prog-wrap{margin:14px 0}
+        .prog-track{
+            width:100%;height:12px;background:var(--border);
+            border-radius:6px;overflow:hidden
+        }
+        .prog-bar{
+            height:100%;width:0%;
+            background:linear-gradient(90deg,var(--p),var(--p2));
+            border-radius:6px;transition:width .35s ease
+        }
+        .prog-msg{
+            font-size:13px;color:var(--p);font-weight:600;
+            text-align:center;margin-top:8px;min-height:20px
         }
 
-        input:focus, textarea:focus, select:focus {
-            outline: none;
-            border-color: var(--primary);
+        /* BOOK ROWS */
+        .book-row{
+            border:2px solid var(--border);border-radius:12px;
+            padding:16px;margin:8px 0;cursor:pointer;
+            transition:all .2s;display:flex;align-items:center;gap:14px
+        }
+        .book-row:hover{border-color:var(--p);background:rgba(79,70,229,.03)}
+        .book-row.sel{border-color:var(--s);background:rgba(5,150,105,.05)}
+        .book-row input[type=checkbox]{
+            width:20px;height:20px;flex-shrink:0;
+            cursor:pointer;accent-color:var(--s)
+        }
+        .book-info strong{font-size:15px;color:var(--dark)}
+        .book-info span{font-size:12px;color:var(--mid);display:block;margin-top:3px}
+
+        /* TAGS */
+        .tag{
+            display:inline-flex;align-items:center;gap:4px;
+            padding:3px 10px;border-radius:20px;font-size:11px;
+            font-weight:700;margin:2px;color:#fff;letter-spacing:.3px
+        }
+        .tag-p{background:var(--p)}.tag-s{background:var(--s)}
+        .tag-w{background:var(--w)}.tag-r{background:var(--r)}
+        .tag-i{background:#0891b2}.tag-g{background:#475569}
+
+        /* VIVA */
+        .viva-hdr{
+            background:linear-gradient(135deg,var(--p),var(--p2));
+            border-radius:16px;padding:20px 24px;color:#fff;
+            margin-bottom:16px
+        }
+        .viva-hdr-row{
+            display:flex;align-items:center;
+            justify-content:space-between;flex-wrap:wrap;gap:10px
+        }
+        .v-timer{
+            font-size:40px;font-weight:800;
+            font-family:'Courier New',monospace;letter-spacing:3px
+        }
+        .v-timer.red{color:#fca5a5;animation:blink .8s step-end infinite}
+        @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+        .v-prog-track{
+            width:100%;height:8px;
+            background:rgba(255,255,255,.25);
+            border-radius:4px;overflow:hidden;margin-top:14px
+        }
+        .v-prog-fill{
+            height:100%;background:#fff;border-radius:4px;
+            transition:width .5s ease
         }
 
-        .btn {
-            display: block;
-            width: 100%;
-            padding: 14px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            margin: 8px 0;
-            transition: background 0.2s, transform 0.2s;
-            text-align: center;
+        /* AVATAR */
+        .av-wrap{text-align:center;margin:16px 0}
+        .av{
+            width:96px;height:96px;border-radius:50%;
+            background:linear-gradient(135deg,var(--p),var(--p2));
+            display:inline-flex;align-items:center;justify-content:center;
+            font-size:46px;box-shadow:0 8px 24px rgba(79,70,229,.35)
+        }
+        .av.speak{animation:avSpeak .55s ease-in-out infinite alternate}
+        @keyframes avSpeak{
+            from{transform:scale(1);box-shadow:0 8px 24px rgba(79,70,229,.35)}
+            to{transform:scale(1.09);box-shadow:0 14px 38px rgba(79,70,229,.65)}
         }
 
-        .btn:hover { background: #5568d3; transform: translateY(-1px); }
-        .btn:active { transform: translateY(0); }
-        .btn-success { background: var(--success); }
-        .btn-success:hover { background: #218838; }
-        .btn-danger { background: var(--danger); }
-        .btn-danger:hover { background: #c82333; }
-        .btn-warning { background: var(--warning); color: #333; }
-        .btn-warning:hover { background: #e0a800; }
-        .btn-secondary { background: #6c757d; }
-        .btn-secondary:hover { background: #5a6268; }
-        .btn-sm { width: auto; display: inline-block; padding: 8px 18px; font-size: 14px; margin: 4px; }
-        .btn-outline {
-            background: transparent;
-            color: var(--primary);
-            border: 2px solid var(--primary);
+        /* QUESTION BOX */
+        .q-box{
+            background:linear-gradient(135deg,#eef2ff,#ede9fe);
+            border:1px solid #c7d2fe;border-radius:16px;
+            padding:24px;margin:16px 0
         }
-        .btn-outline:hover { background: var(--primary); color: white; }
-
-        .card {
-            background: var(--light);
-            padding: 20px;
-            margin: 15px 0;
-            border-radius: 12px;
-            border-left: 4px solid var(--primary);
+        .q-lbl{
+            font-size:11px;font-weight:800;color:var(--p);
+            text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px
         }
-
-        .grid-3 {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin: 20px 0;
+        .q-text{
+            font-size:18px;line-height:1.8;color:var(--dark);font-weight:500
+        }
+        .q-img-wrap{
+            margin:16px 0;border-radius:12px;overflow:hidden;
+            border:2px solid #c7d2fe;background:#f8fafc;
+            min-height:200px;display:flex;align-items:center;justify-content:center
+        }
+        .q-img{
+            max-width:100%;max-height:420px;
+            display:block;border-radius:10px
+        }
+        .img-loading{
+            display:flex;flex-direction:column;align-items:center;
+            padding:40px;color:var(--mid);gap:12px;font-size:14px
         }
 
-        .stat-box {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            padding: 20px;
-            border-radius: 12px;
-            text-align: center;
+        /* MIC */
+        .mic-area{text-align:center;margin:16px 0}
+        .mic-btn{
+            width:86px;height:86px;border-radius:50%;
+            background:linear-gradient(135deg,var(--r),#b91c1c);
+            color:#fff;font-size:32px;border:none;cursor:pointer;
+            display:inline-flex;align-items:center;justify-content:center;
+            box-shadow:0 8px 24px rgba(220,38,38,.4);transition:all .25s;
+            font-family:inherit
+        }
+        .mic-btn:hover{transform:scale(1.08)}
+        .mic-btn.on{
+            background:linear-gradient(135deg,var(--s),#047857);
+            box-shadow:0 8px 24px rgba(5,150,105,.5);
+            animation:micP 1s ease-in-out infinite
+        }
+        @keyframes micP{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+        .mic-lbl{font-size:13px;color:var(--mid);margin-top:8px}
+
+        .transcript{
+            background:#f8fafc;border:2px dashed var(--border);
+            border-radius:12px;padding:16px;min-height:80px;
+            max-height:200px;overflow-y:auto;font-size:15px;
+            line-height:1.7;color:#475569;margin:12px 0;
+            word-break:break-word;transition:all .2s
+        }
+        .transcript.live{
+            border-color:var(--s);background:#f0fdf4;color:#166534
         }
 
-        .stat-box .num { font-size: 36px; font-weight: bold; }
-        .stat-box .lbl { font-size: 13px; opacity: 0.9; margin-top: 4px; }
+        /* EVAL */
+        .eval-box{
+            background:linear-gradient(135deg,#fffbeb,#fef3c7);
+            border:2px solid #fbbf24;border-radius:16px;
+            padding:24px;margin:14px 0
+        }
+        .score-ring{
+            display:inline-flex;flex-direction:column;align-items:center;
+            justify-content:center;width:90px;height:90px;border-radius:50%;
+            font-weight:800;color:#fff;flex-shrink:0
+        }
+        .score-ring .sn{font-size:28px;line-height:1}
+        .score-ring .sl{font-size:12px;opacity:.9;margin-top:2px}
+        .sh{background:linear-gradient(135deg,#059669,#047857)}
+        .sm{background:linear-gradient(135deg,#d97706,#b45309)}
+        .sl2{background:linear-gradient(135deg,#dc2626,#b91c1c)}
 
-        .avatar {
-            width: 130px;
-            height: 130px;
-            margin: 15px auto;
-            border-radius: 50%;
-            background: var(--light);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 65px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-            transition: transform 0.3s;
+        .fb{padding:10px 14px;border-radius:8px;margin:6px 0;font-size:14px;line-height:1.65}
+        .fb-s{background:#d1fae5;border-left:4px solid var(--s)}
+        .fb-i{background:#fef3c7;border-left:4px solid var(--w)}
+        .fb-t{background:#dbeafe;border-left:4px solid #2563eb}
+        .fb-m{background:#ede9fe;border-left:4px solid var(--p);font-size:14px;line-height:1.8}
+        .fb-correct{
+            background:#f0fdf4;border:1px solid #86efac;
+            border-radius:10px;padding:16px;margin:10px 0;
+            font-size:14px;line-height:1.8;color:#166534
         }
 
-        .avatar.speaking {
-            animation: speakPulse 0.6s ease-in-out infinite alternate;
+        /* AI LOADING */
+        .ai-load{
+            display:flex;flex-direction:column;align-items:center;
+            padding:32px;gap:14px
+        }
+        .dots{display:flex;gap:8px}
+        .dot{
+            width:10px;height:10px;border-radius:50%;background:var(--p);
+            animation:dotB 1.4s ease-in-out infinite
+        }
+        .dot:nth-child(2){animation-delay:.2s}
+        .dot:nth-child(3){animation-delay:.4s}
+        @keyframes dotB{
+            0%,100%{transform:translateY(0);opacity:.4}
+            50%{transform:translateY(-12px);opacity:1}
         }
 
-        @keyframes speakPulse {
-            from { transform: scale(1); box-shadow: 0 8px 25px rgba(102,126,234,0.3); }
-            to { transform: scale(1.07); box-shadow: 0 12px 35px rgba(102,126,234,0.6); }
+        /* MODAL */
+        .modal-bg{
+            display:none;position:fixed;inset:0;
+            background:rgba(0,0,0,.55);z-index:9999;
+            align-items:center;justify-content:center;padding:16px
+        }
+        .modal-bg.on{display:flex}
+        .modal{
+            background:#fff;border-radius:20px;padding:32px;
+            width:100%;max-width:580px;max-height:88vh;
+            overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.25)
+        }
+        .modal h2{
+            font-size:22px;font-weight:800;color:var(--dark);
+            text-align:center;margin-bottom:20px
         }
 
-        .question-box {
-            background: linear-gradient(135deg, #f0f4ff, #e8ecff);
-            padding: 25px;
-            border-radius: 12px;
-            margin: 20px 0;
-            border-left: 5px solid var(--primary);
+        /* HIST */
+        .hist-item{
+            border:1px solid var(--border);border-radius:12px;
+            padding:16px;margin:8px 0;
+            display:flex;justify-content:space-between;
+            align-items:center;flex-wrap:wrap;gap:8px
+        }
+        .hist-left strong{font-size:15px;color:var(--dark)}
+        .hist-left span{font-size:12px;color:var(--mid);display:block;margin-top:3px}
+        .g-badge{
+            padding:8px 16px;border-radius:20px;
+            font-weight:800;font-size:16px;color:#fff;text-align:center
         }
 
-        .question-text {
-            font-size: 18px;
-            line-height: 1.8;
-            color: var(--dark);
-            margin: 12px 0;
-            font-weight: 500;
+        /* API BOX */
+        .api-box{
+            background:linear-gradient(135deg,#eef2ff,#ede9fe);
+            border:2px solid #c7d2fe;border-radius:16px;padding:24px;margin:14px 0
+        }
+        .api-box h3{color:var(--p);margin-bottom:12px}
+        .api-steps{
+            background:#fff;border-radius:10px;padding:16px;
+            font-size:14px;line-height:2;color:var(--dark);margin-bottom:12px
+        }
+        .api-steps a{color:var(--p);font-weight:700;text-decoration:none}
+        .api-steps a:hover{text-decoration:underline}
+        .api-ok{
+            background:#d1fae5;border:1px solid #6ee7b7;
+            border-radius:10px;padding:12px;text-align:center;
+            font-weight:600;color:#065f46;font-size:14px
         }
 
-        .question-image {
-            max-width: 100%;
-            max-height: 380px;
-            margin: 15px auto;
-            display: block;
-            border-radius: 10px;
-            border: 2px solid var(--primary);
+        /* CHECKBOX ROW */
+        .chk-row{
+            display:flex;align-items:center;gap:10px;
+            padding:10px 0;cursor:pointer
         }
-
-        .answer-box {
-            background: white;
-            border: 2px solid var(--primary);
-            padding: 25px;
-            border-radius: 12px;
-            margin: 20px 0;
+        .chk-row input[type=checkbox]{
+            width:20px;height:20px;cursor:pointer;
+            accent-color:var(--p);margin:0
         }
+        .chk-row span{font-size:15px;color:var(--dark)}
 
-        .mic-wrap { text-align: center; margin: 15px 0; }
-
-        .mic-btn {
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
-            background: var(--danger);
-            color: white;
-            font-size: 35px;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 8px 25px rgba(220,53,69,0.4);
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
+        .hidden{display:none!important}
+        .flex{display:flex;gap:8px;flex-wrap:wrap}
+        .mt{margin-top:12px}
+        .center{text-align:center}
+        .divider{border:none;border-top:1px solid var(--border);margin:18px 0}
+        .empty{
+            text-align:center;padding:32px;color:var(--mid);font-size:14px
         }
+        .empty .ei{font-size:36px;margin-bottom:10px}
 
-        .mic-btn:hover { transform: scale(1.08); }
-        .mic-btn.on {
-            background: var(--success);
-            animation: micPulse 1s ease-in-out infinite;
-            box-shadow: 0 8px 25px rgba(40,167,69,0.5);
-        }
-
-        @keyframes micPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
-        .mic-status {
-            text-align: center;
-            color: #666;
-            font-size: 14px;
-            margin: 6px 0;
-        }
-
-        .transcript-box {
-            background: #f1f3f4;
-            border: 2px dashed #ccc;
-            border-radius: 10px;
-            padding: 15px;
-            min-height: 90px;
-            max-height: 250px;
-            overflow-y: auto;
-            font-size: 15px;
-            line-height: 1.7;
-            color: #555;
-            margin: 12px 0;
-            word-break: break-word;
-        }
-
-        .transcript-box.live {
-            border-color: var(--success);
-            background: #f0fff4;
-            color: #1a5e2a;
-        }
-
-        .score-badge {
-            display: inline-block;
-            padding: 10px 24px;
-            border-radius: 25px;
-            font-size: 22px;
-            font-weight: bold;
-            margin: 8px 0;
-            color: white;
-            background: var(--success);
-        }
-
-        .score-badge.mid { background: var(--warning); color: #333; }
-        .score-badge.low { background: var(--danger); }
-
-        .eval-box {
-            background: #fffdf0;
-            border: 2px solid var(--warning);
-            padding: 22px;
-            border-radius: 12px;
-            margin: 15px 0;
-        }
-
-        .strength-item {
-            background: #d4edda;
-            border-left: 4px solid var(--success);
-            padding: 10px 14px;
-            border-radius: 6px;
-            margin: 6px 0;
-            font-size: 15px;
-        }
-
-        .improve-item {
-            background: #fff3cd;
-            border-left: 4px solid var(--warning);
-            padding: 10px 14px;
-            border-radius: 6px;
-            margin: 6px 0;
-            font-size: 15px;
-        }
-
-        .suggest-item {
-            background: #d1ecf1;
-            border-left: 4px solid #17a2b8;
-            padding: 10px 14px;
-            border-radius: 6px;
-            margin: 6px 0;
-            font-size: 15px;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            margin: 3px;
-            color: white;
-            background: var(--primary);
-        }
-
-        .badge-img { background: #17a2b8; }
-        .badge-hard { background: var(--danger); }
-        .badge-med { background: var(--warning); color: #333; }
-        .badge-easy { background: var(--success); }
-
-        .timer {
-            font-size: 36px;
-            text-align: center;
-            font-weight: bold;
-            font-family: 'Courier New', monospace;
-            color: var(--primary);
-            margin: 10px 0;
-            letter-spacing: 3px;
-        }
-
-        .timer.urgent { color: var(--danger); animation: blink 1s step-end infinite; }
-
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-
-        .prog-bar {
-            width: 100%;
-            height: 36px;
-            background: #e9ecef;
-            border-radius: 18px;
-            overflow: hidden;
-            margin: 12px 0;
-        }
-
-        .prog-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            transition: width 0.5s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 13px;
-            min-width: 40px;
-        }
-
-        .book-row {
-            background: white;
-            border: 2px solid #e9ecef;
-            padding: 16px;
-            margin: 8px 0;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .book-row:hover { border-color: var(--primary); background: #f0f4ff; }
-        .book-row.checked { border-color: var(--success); background: #f0fff4; }
-
-        .book-row label {
-            cursor: pointer;
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            width: 100%;
-        }
-
-        .book-row input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            flex-shrink: 0;
-            margin-top: 2px;
-            cursor: pointer;
-        }
-
-        .progress-bar-upload {
-            width: 100%;
-            height: 10px;
-            background: #e9ecef;
-            border-radius: 5px;
-            overflow: hidden;
-            margin: 10px 0;
-        }
-
-        .progress-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            width: 0%;
-            transition: width 0.4s ease;
-            border-radius: 5px;
-        }
-
-        .upload-status {
-            text-align: center;
-            padding: 10px;
-            font-weight: 500;
-            font-size: 15px;
-            color: var(--primary);
-        }
-
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.65);
-            z-index: 9999;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-overlay.open { display: flex; }
-
-        .modal-box {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            max-width: 520px;
-            width: 92%;
-            max-height: 85vh;
-            overflow-y: auto;
-        }
-
-        .hidden { display: none !important; }
-
-        .divider { border: none; border-top: 1px solid #e9ecef; margin: 15px 0; }
-
-        .top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .session-item {
-            background: white;
-            border: 1px solid #e9ecef;
-            padding: 14px;
-            margin: 8px 0;
-            border-radius: 10px;
-        }
-
-        .file-btn {
-            display: block;
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            text-align: center;
-            margin: 8px 0;
-        }
-
-        .file-btn:hover { opacity: 0.92; }
-
-        .checkbox-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 0;
-        }
-
-        .checkbox-row input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-            margin: 0;
-        }
-
-        .checkbox-row label { cursor: pointer; font-size: 15px; margin: 0; }
-
-        @media (max-width: 600px) {
-            .container { padding: 15px; }
-            h1 { font-size: 20px; }
-            .grid-3 { grid-template-columns: 1fr; }
-            .avatar { width: 100px; height: 100px; font-size: 48px; }
-            .timer { font-size: 28px; }
-            .mic-btn { width: 75px; height: 75px; font-size: 28px; }
+        @media(max-width:600px){
+            .login-box{padding:32px 20px}
+            .stats{grid-template-columns:1fr}
+            .v-timer{font-size:30px}
+            .q-text{font-size:16px}
+            .av{width:80px;height:80px;font-size:38px}
         }
     </style>
 </head>
 <body>
-<div class="container">
 
-    <!-- ========== LOGIN PAGE ========== -->
-    <div class="page active" id="pg-login">
-        <h1>🎓 Medical Viva Examiner</h1>
-        <div style="text-align:center; margin:30px 0;">
-            <div class="avatar">👨‍⚕️</div>
-            <p style="color:#666; font-size:17px; margin-top:10px;">AI-Powered Viva Practice Platform</p>
-        </div>
-
-        <input type="text" id="inp-user" placeholder="Username">
-        <input type="password" id="inp-pass" placeholder="Password">
-        <button class="btn btn-success" id="btn-login">🔐 Login</button>
-
-        <div style="text-align:center; margin-top:20px; color:#888; font-size:13px;">
-            <p>Admin: <b>admin</b> / <b>admin123</b></p>
-            <p>Student: <b>student</b> / <b>student123</b></p>
-        </div>
-    </div>
-
-    <!-- ========== ADMIN PAGE ========== -->
-    <div class="page" id="pg-admin">
-        <div class="top-bar">
-            <h1 style="margin:0;">📊 Admin Panel</h1>
-            <button class="btn btn-danger btn-sm" id="btn-admin-logout">Logout</button>
-        </div>
-
-        <div class="grid-3">
-            <div class="stat-box"><div class="num" id="stat-books">0</div><div class="lbl">Books</div></div>
-            <div class="stat-box"><div class="num" id="stat-students">0</div><div class="lbl">Students</div></div>
-            <div class="stat-box"><div class="num" id="stat-sessions">0</div><div class="lbl">Sessions</div></div>
-        </div>
-
-        <div class="card">
-            <h3>📤 Upload Medical Book (PDF)</h3>
-            <label for="inp-pdf" class="file-btn">📁 Choose PDF File</label>
-            <input type="file" id="inp-pdf" accept=".pdf" style="display:none;">
-            <div id="file-chosen" style="text-align:center; color:#666; font-size:13px; margin:4px 0;"></div>
-            <input type="text" id="inp-book-title" placeholder="Book Title">
-            <input type="text" id="inp-book-subject" placeholder="Subject (Anatomy, Pharmacology...)">
-            <select id="inp-book-diff">
-                <option value="basic">Basic Level</option>
-                <option value="intermediate" selected>Intermediate Level</option>
-                <option value="advanced">Advanced Level</option>
-            </select>
-            <button class="btn btn-success" id="btn-upload">📥 Upload & Process</button>
-            <div id="upload-progress" class="hidden">
-                <div class="progress-bar-upload"><div class="progress-bar-fill" id="upload-bar"></div></div>
-                <div class="upload-status" id="upload-msg">Processing...</div>
-            </div>
-        </div>
-
-        <div class="card">
-            <h3>📚 Uploaded Books</h3>
-            <div id="admin-books-list"></div>
-        </div>
-
-        <div class="card">
-            <h3>👥 Add Student</h3>
-            <input type="text" id="inp-stu-user" placeholder="Username">
-            <input type="password" id="inp-stu-pass" placeholder="Password (min 6 chars)">
-            <button class="btn" id="btn-add-student">➕ Add Student</button>
-        </div>
-
-        <div class="card">
-            <h3>📋 Students</h3>
-            <div id="admin-students-list"></div>
-        </div>
-
-        <div class="card">
-            <h3>🕐 Recent Sessions</h3>
-            <div id="admin-sessions-list"></div>
-        </div>
-    </div>
-
-    <!-- ========== STUDENT PAGE ========== -->
-    <div class="page" id="pg-student">
-        <div class="top-bar">
-            <h1 style="margin:0;" id="stu-title">Welcome!</h1>
-            <button class="btn btn-danger btn-sm" id="btn-stu-logout">Logout</button>
-        </div>
-
-        <div class="grid-3">
-            <div class="stat-box"><div class="num" id="stu-sessions">0</div><div class="lbl">Sessions</div></div>
-            <div class="stat-box"><div class="num" id="stu-avg">—</div><div class="lbl">Avg Score</div></div>
-            <div class="stat-box"><div class="num" id="stu-best">—</div><div class="lbl">Best Score</div></div>
-        </div>
-
-        <div class="card">
-            <h3>📚 Select Books</h3>
-            <div id="stu-books-list"></div>
-        </div>
-
-        <div class="card">
-            <h3>⚙️ Session Settings</h3>
-            <label>Duration</label>
-            <select id="stu-duration">
-                <option value="15">15 Minutes</option>
-                <option value="30">30 Minutes</option>
-                <option value="45" selected>45 Minutes</option>
-                <option value="60">60 Minutes</option>
-                <option value="90">90 Minutes</option>
-            </select>
-
-            <label>Difficulty</label>
-            <select id="stu-diff">
-                <option value="easy">Easy</option>
-                <option value="medium" selected>Medium</option>
-                <option value="hard">Hard</option>
-                <option value="mixed">Mixed (All Levels)</option>
-            </select>
-
-            <label>Question Types</label>
-            <div class="checkbox-row">
-                <input type="checkbox" id="chk-text" checked>
-                <label for="chk-text">📝 Text Questions</label>
-            </div>
-            <div class="checkbox-row">
-                <input type="checkbox" id="chk-image" checked>
-                <label for="chk-image">🖼️ Image / Graph Questions</label>
-            </div>
-
-            <label>Voice Speed</label>
-            <select id="stu-speed">
-                <option value="0.75">Slow</option>
-                <option value="0.9" selected>Normal</option>
-                <option value="1.1">Fast</option>
-            </select>
-
-            <button class="btn btn-success" id="btn-start-viva" style="font-size:18px; margin-top:15px;">🎬 Start Viva Session</button>
-        </div>
-
-        <div class="card">
-            <h3>📜 Session History</h3>
-            <div id="stu-history"></div>
-        </div>
-    </div>
-
-    <!-- ========== VIVA PAGE ========== -->
-    <div class="page" id="pg-viva">
-        <div class="timer" id="viva-timer">00:00</div>
-        <div class="prog-bar">
-            <div class="prog-fill" id="viva-progress" style="width:5%;">
-                <span id="viva-prog-txt">1/1</span>
-            </div>
-        </div>
-
-        <div class="avatar" id="viva-avatar">👨‍⚕️</div>
-
-        <div class="question-box">
-            <h3>📋 Question</h3>
-            <div class="question-text" id="viva-question">Loading...</div>
-            <img id="viva-img" class="question-image hidden" alt="Question image">
-            <div style="margin-top:10px;">
-                <span class="badge" id="viva-badge-book">Book</span>
-                <span class="badge" id="viva-badge-diff">Medium</span>
-                <span class="badge badge-img hidden" id="viva-badge-type">Image</span>
-            </div>
-            <div style="margin-top:12px;">
-                <button class="btn btn-secondary btn-sm" id="btn-repeat">🔊 Repeat</button>
-                <button class="btn btn-warning btn-sm" id="btn-skip">⏭️ Skip</button>
-            </div>
-        </div>
-
-        <div class="answer-box">
-            <h3>🎙️ Your Answer</h3>
-            <div class="mic-wrap">
-                <button class="mic-btn" id="btn-mic">🎤</button>
-            </div>
-            <div class="mic-status" id="mic-status">Click mic to record your answer</div>
-            <div class="transcript-box" id="transcript-box">Your spoken answer will appear here...</div>
-            <p style="text-align:center; color:#999; font-size:13px; margin:6px 0;">— or type below —</p>
-            <textarea id="typed-answer" rows="4" placeholder="Type your answer here..."></textarea>
-            <button class="btn btn-success" id="btn-submit">✅ Submit Answer</button>
-        </div>
-
-        <div id="eval-section" class="hidden">
-            <div class="eval-box">
-                <h3>📊 AI Evaluation</h3>
-                <div class="score-badge" id="eval-score">0/10</div>
-                <p id="eval-feedback" style="margin-top:12px; font-size:16px; line-height:1.6;"></p>
-
-                <h4 style="margin-top:18px; color:var(--success);">✅ Strengths</h4>
-                <div id="eval-strengths"></div>
-
-                <h4 style="margin-top:18px; color:var(--warning);">💡 Improvements</h4>
-                <div id="eval-improves"></div>
-
-                <h4 style="margin-top:18px; color:#17a2b8;">📖 Study Tips</h4>
-                <div id="eval-tips"></div>
-            </div>
-            <button class="btn" id="btn-next">➡️ Next Question</button>
-        </div>
-
-        <hr class="divider">
-        <div style="text-align:center;">
-            <button class="btn btn-danger btn-sm" id="btn-end-session">🛑 End Session</button>
-        </div>
-    </div>
-
+<!-- ══════════════════════════════════
+     LOGIN
+══════════════════════════════════ -->
+<div class="page on" id="pg-login">
+<div class="login-wrap">
+<div class="login-box">
+    <div class="login-logo">🩺</div>
+    <h2>MedViva AI</h2>
+    <p class="sub">Professional Medical Examination Platform</p>
+    <label>Username</label>
+    <input type="text" id="l-user" autocomplete="username">
+    <label>Password</label>
+    <input type="password" id="l-pass" autocomplete="current-password">
+    <div class="login-err" id="l-err">Invalid credentials. Please try again.</div>
+    <button class="btn btn-p mt" id="btn-login">Sign In →</button>
+</div>
+</div>
 </div>
 
-<!-- ========== SUMMARY MODAL ========== -->
-<div class="modal-overlay" id="modal-summary">
-    <div class="modal-box">
-        <h2 style="text-align:center; color:var(--primary); margin-bottom:20px;">🎉 Session Complete!</h2>
-        <div id="modal-summary-content"></div>
-        <button class="btn" id="btn-close-summary">🏠 Back to Dashboard</button>
-        <button class="btn btn-secondary" id="btn-download-report">📥 Download Report</button>
+<!-- ══════════════════════════════════
+     ADMIN
+══════════════════════════════════ -->
+<div class="page" id="pg-admin">
+<div class="wrap">
+    <div class="topbar">
+        <div>
+            <h1>🩺 MedViva AI — Admin</h1>
+            <p>Manage books, students and monitor sessions</p>
+        </div>
+        <button class="btn btn-r btn-sm" id="btn-adm-out">Sign Out</button>
     </div>
+
+    <!-- API Key -->
+    <div class="api-box" id="api-box">
+        <h3>🔑 Connect Gemini AI (Free & Unlimited)</h3>
+        <div class="api-steps">
+            1. Visit →
+            <a href="https://aistudio.google.com/app/apikey" target="_blank">
+            aistudio.google.com/app/apikey</a><br>
+            2. Sign in with any Google account (100% free)<br>
+            3. Click <strong>"Create API Key"</strong><br>
+            4. Copy the key (starts with <code>AIzaSy...</code>) and paste below
+        </div>
+        <input type="text" id="inp-api" placeholder="AIzaSy...">
+        <button class="btn btn-p" id="btn-api">💾 Activate AI</button>
+    </div>
+
+    <div class="stats">
+        <div class="stat"><div class="n" id="s-bk">0</div><div class="l">Books</div></div>
+        <div class="stat"><div class="n" id="s-st">0</div><div class="l">Students</div></div>
+        <div class="stat"><div class="n" id="s-se">0</div><div class="l">Sessions</div></div>
+    </div>
+
+    <!-- Upload -->
+    <div class="card">
+        <h3>📤 Upload Medical Textbook</h3>
+        <div class="drop-zone" id="dz">
+            <div class="dz-icon">📚</div>
+            <p><strong>Click or drag PDF here</strong><br>
+            Supports textbooks from 100 to 2000+ pages</p>
+        </div>
+        <input type="file" id="inp-pdf" accept=".pdf" class="hidden">
+        <div id="fc" style="font-size:13px;color:var(--mid);margin:6px 4px"></div>
+        <input type="text" id="inp-bt" placeholder="Book Title">
+        <input type="text" id="inp-bs" placeholder="Subject (Anatomy, Pharmacology, Medicine...)">
+        <select id="inp-bd">
+            <option value="mixed">Mixed Difficulty (Recommended)</option>
+            <option value="basic">Basic Level</option>
+            <option value="advanced">Advanced Level</option>
+        </select>
+        <button class="btn btn-s" id="btn-up">📥 Process Book with AI</button>
+        <div id="up-ui" class="hidden">
+            <div class="prog-wrap">
+                <div class="prog-track"><div class="prog-bar" id="pb"></div></div>
+                <div class="prog-msg" id="pm"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Books list -->
+    <div class="card">
+        <h3>📚 Uploaded Books</h3>
+        <div id="adm-bk"></div>
+    </div>
+
+    <!-- Add student -->
+    <div class="card">
+        <h3>👥 Add Student Account</h3>
+        <input type="text" id="inp-su" placeholder="Username">
+        <input type="password" id="inp-sp" placeholder="Password (min 6 chars)">
+        <button class="btn btn-p" id="btn-stu">➕ Create Student</button>
+    </div>
+
+    <div class="card">
+        <h3>📋 Students</h3>
+        <div id="adm-st"></div>
+    </div>
+
+    <div class="card">
+        <h3>🕐 Recent Sessions</h3>
+        <div id="adm-se"></div>
+    </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════
+     STUDENT
+══════════════════════════════════ -->
+<div class="page" id="pg-student">
+<div class="wrap">
+    <div class="topbar">
+        <div>
+            <h1 id="stu-title">Welcome!</h1>
+            <p>Select books and begin your viva session</p>
+        </div>
+        <button class="btn btn-r btn-sm" id="btn-stu-out">Sign Out</button>
+    </div>
+
+    <div class="stats">
+        <div class="stat"><div class="n" id="st-se">0</div><div class="l">Sessions</div></div>
+        <div class="stat"><div class="n" id="st-av">—</div><div class="l">Avg Score</div></div>
+        <div class="stat"><div class="n" id="st-be">—</div><div class="l">Best Score</div></div>
+    </div>
+
+    <div class="card">
+        <h3>📚 Select Books to Practice</h3>
+        <div id="stu-bk"></div>
+    </div>
+
+    <div class="card">
+        <h3>⚙️ Session Settings</h3>
+        <label>Session Duration</label>
+        <select id="ss-dur">
+            <option value="30">30 Minutes</option>
+            <option value="45" selected>45 Minutes</option>
+            <option value="60">60 Minutes</option>
+            <option value="90">90 Minutes</option>
+            <option value="120">2 Hours</option>
+        </select>
+
+        <label>Question Types</label>
+        <label class="chk-row">
+            <input type="checkbox" id="chk-txt" checked>
+            <span>📝 Text Questions (AI-generated, 150 per session)</span>
+        </label>
+        <label class="chk-row">
+            <input type="checkbox" id="chk-img" checked>
+            <span>🖼️ Image / Diagram Questions (topic-matched, 50 per session)</span>
+        </label>
+
+        <label>Voice Speed</label>
+        <select id="ss-spd">
+            <option value="0.8">Slow</option>
+            <option value="0.9" selected>Normal</option>
+            <option value="1.1">Fast</option>
+        </select>
+
+        <button class="btn btn-s" id="btn-start" style="font-size:17px;margin-top:16px">
+            🎬 Start Viva Session
+        </button>
+    </div>
+
+    <div class="card">
+        <h3>📜 Session History</h3>
+        <div id="stu-hist"></div>
+    </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════
+     VIVA
+══════════════════════════════════ -->
+<div class="page" id="pg-viva">
+<div class="wrap">
+    <div class="viva-hdr">
+        <div class="viva-hdr-row">
+            <div>
+                <div class="v-timer" id="v-timer">00:00</div>
+                <div style="font-size:13px;opacity:.8;margin-top:4px" id="v-qlbl2">Q1</div>
+            </div>
+            <div style="text-align:right">
+                <div style="font-size:15px;font-weight:700" id="v-qcnt">1/1</div>
+                <div style="font-size:12px;opacity:.8">Questions</div>
+            </div>
+        </div>
+        <div class="v-prog-track">
+            <div class="v-prog-fill" id="v-prog" style="width:0%"></div>
+        </div>
+    </div>
+
+    <div class="av-wrap"><div class="av" id="v-av">🩺</div></div>
+
+    <div class="q-box">
+        <div class="q-lbl" id="v-qlbl">QUESTION 1 OF 1</div>
+        <div class="q-text" id="v-qtxt">Loading...</div>
+
+        <!-- Image area for image questions -->
+        <div id="v-img-wrap" class="q-img-wrap hidden">
+            <div class="img-loading" id="v-img-loading">
+                <div class="dots">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+                <span>Loading medical image...</span>
+            </div>
+            <img id="v-qimg" class="q-img hidden" alt="Medical diagram">
+            <div id="v-img-err" class="hidden" style="padding:20px;text-align:center;color:var(--mid);font-size:14px">
+                📷 Image unavailable — answer based on the question text
+            </div>
+        </div>
+
+        <div style="margin-top:12px" id="v-tags"></div>
+        <div class="flex mt">
+            <button class="btn btn-g btn-sm" id="btn-rep">🔊 Repeat</button>
+            <button class="btn btn-w btn-sm" id="btn-skp">⏭️ Skip</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>🎙️ Your Answer</h3>
+        <div class="mic-area">
+            <button class="mic-btn" id="btn-mic">🎤</button>
+            <div class="mic-lbl" id="mic-lbl">Tap to start recording</div>
+        </div>
+        <div class="transcript" id="v-trans">Your spoken words appear here...</div>
+        <div style="text-align:center;color:var(--mid);font-size:13px;margin:8px 0">
+            — or type your answer below —
+        </div>
+        <textarea id="v-typed" rows="5"
+            placeholder="Type a detailed clinical answer here...&#10;&#10;Include: definition, mechanism, clinical features, investigations, management, complications"></textarea>
+        <button class="btn btn-p" id="btn-sub">✅ Submit & Get AI Feedback</button>
+    </div>
+
+    <div id="eval-area" class="hidden">
+        <div class="eval-box">
+            <h3>🤖 AI Examiner Feedback</h3>
+            <div id="eval-body"></div>
+        </div>
+        <button class="btn btn-s" id="btn-nxt">➡️ Next Question</button>
+    </div>
+
+    <hr class="divider">
+    <div class="center">
+        <button class="btn btn-r btn-sm" id="btn-end">🛑 End Session</button>
+    </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════
+     SUMMARY MODAL
+══════════════════════════════════ -->
+<div class="modal-bg" id="modal">
+<div class="modal">
+    <h2>🎉 Session Complete!</h2>
+    <div id="modal-body"></div>
+    <button class="btn btn-p" id="btn-mc">🏠 Back to Dashboard</button>
+    <button class="btn btn-g" id="btn-dl">📥 Download Full Report</button>
+</div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-
 <script>
-// ============================================================
-//  SETUP
-// ============================================================
+'use strict';
 pdfjsLib.GlobalWorkerOptions.workerSrc =
-    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-// ============================================================
-//  STATE
-// ============================================================
-let APP = {
+/* ══════════════════════════════════════
+   STATE
+══════════════════════════════════════ */
+const A = {
     user: null,
-    books: [],
-    users: [],
-    sessions: [],
-    viva: {
-        questions: [], answers: [],
-        index: 0, duration: 45,
-        speed: 0.9, timerRef: null, timeLeft: 0
+    apiKey: lsGet('mv_api',''),
+    books:    lsGet('mv_books',[]),
+    users:    lsGet('mv_users',[
+        {u:'akshat8',  p:hp('122007'),     role:'admin'},
+        {u:'student',  p:hp('student123'), role:'student'}
+    ]),
+    sessions: lsGet('mv_sess',[]),
+    viva:{
+        qs:[], ans:[], idx:0,
+        dur:45, spd:.9,
+        tRef:null, tLeft:0
     },
-    speech: { recognition: null, recording: false, transcript: '' },
-    lastSession: null
+    rec:{on:false, txt:'', eng:null},
+    lastSess:null
 };
 
-// ============================================================
-//  BOOT
-// ============================================================
-(function init() {
-    APP.books    = safeGet('viva_books', []);
-    APP.sessions = safeGet('viva_sessions', []);
-    APP.users    = safeGet('viva_users', [
-        { username: 'admin',   password: hp('admin123'),   role: 'admin'   },
-        { username: 'student', password: hp('student123'), role: 'student' }
-    ]);
+/* ══════════════════════════════════════
+   UTILS
+══════════════════════════════════════ */
+function lsGet(k,d){
+    try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}
+    catch(e){return d;}
+}
+function lsSave(k,v){
+    try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}
+}
+function $id(id){return document.getElementById(id);}
+function hp(s){
+    let h=5381;
+    for(let i=0;i<s.length;i++) h=((h<<5)+h)^s.charCodeAt(i);
+    return (h>>>0).toString(16);
+}
+function go(id){
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+    $id(id).classList.add('on');
+    window.scrollTo(0,0);
+}
+function setH(id,html){$id(id).innerHTML=html;}
+function gradeColor(g){
+    return({
+        'A+':'#059669','A':'#2563eb','B+':'#7c3aed',
+        'B':'#0891b2','C':'#d97706'
+    }[g])||'#dc2626';
+}
+function calcGrade(s){
+    return s>=9?'A+':s>=8?'A':s>=7?'B+':s>=6?'B':s>=5?'C':'D';
+}
 
+/* ══════════════════════════════════════
+   BOOT
+══════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded',()=>{
+    lsSave('mv_users', A.users);
     initSpeech();
-    bindEvents();
-})();
+    bindAll();
+    if(A.apiKey) showApiOk();
+});
 
-// ============================================================
-//  HELPERS
-// ============================================================
-function safeGet(key, def) {
-    try { return JSON.parse(localStorage.getItem(key)) || def; }
-    catch(e) { return def; }
-}
-
-function safeSave(key, val) {
-    try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
-}
-
-function hp(s) {
-    let h = 5381;
-    for (let i = 0; i < s.length; i++) h = ((h << 5) + h) ^ s.charCodeAt(i);
-    return (h >>> 0).toString(16);
-}
-
-function $id(id) { return document.getElementById(id); }
-
-function showPage(id) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    $id(id).classList.add('active');
-    window.scrollTo(0, 0);
-}
-
-function setHTML(id, html) { $id(id).innerHTML = html; }
-
-function showModal(id) { $id(id).classList.add('open'); }
-function hideModal(id) { $id(id).classList.remove('open'); }
-
-// ============================================================
-//  SPEECH SETUP
-// ============================================================
-function initSpeech() {
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR) return;
-    const r = new SR();
-    r.continuous = true;
-    r.interimResults = true;
-    r.lang = 'en-US';
-
-    r.onstart = () => {
-        $id('mic-status').textContent = '🔴 Recording... speak now';
-        $id('transcript-box').classList.add('live');
+/* ══════════════════════════════════════
+   SPEECH
+══════════════════════════════════════ */
+function initSpeech(){
+    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR) return;
+    const r=new SR();
+    r.continuous=true; r.interimResults=true; r.lang='en-US';
+    r.onstart=()=>{
+        $id('v-trans').classList.add('live');
+        $id('mic-lbl').textContent='🔴 Listening... speak now';
     };
-
-    r.onresult = (e) => {
-        let interim = '';
-        for (let i = e.resultIndex; i < e.results.length; i++) {
-            const t = e.results[i][0].transcript;
-            if (e.results[i].isFinal) APP.speech.transcript += t + ' ';
-            else interim += t;
+    r.onresult=e=>{
+        let interim='';
+        for(let i=e.resultIndex;i<e.results.length;i++){
+            const t=e.results[i][0].transcript;
+            if(e.results[i].isFinal) A.rec.txt+=t+' ';
+            else interim+=t;
         }
-        $id('transcript-box').textContent =
-            (APP.speech.transcript + interim) || 'Listening...';
+        $id('v-trans').textContent=(A.rec.txt+interim)||'Listening...';
     };
-
-    r.onend = () => {
-        if (APP.speech.recording) {
-            try { r.start(); } catch(e) {}
-        } else {
-            $id('mic-status').textContent = 'Click mic to record your answer';
-            $id('transcript-box').classList.remove('live');
+    r.onend=()=>{
+        if(A.rec.on){try{r.start();}catch(e){}}
+        else{
+            $id('v-trans').classList.remove('live');
+            $id('mic-lbl').textContent='Tap to start recording';
         }
     };
-
-    r.onerror = (e) => {
-        if (e.error === 'no-speech') return;
-        APP.speech.recording = false;
+    r.onerror=e=>{
+        if(e.error==='no-speech') return;
+        A.rec.on=false;
         $id('btn-mic').classList.remove('on');
-        $id('mic-status').textContent = 'Mic error – please type your answer';
+        $id('mic-lbl').textContent='Microphone unavailable — type answer below';
     };
-
-    APP.speech.recognition = r;
+    A.rec.eng=r;
+}
+function micStart(){
+    if(!A.rec.eng) return;
+    A.rec.on=true; A.rec.txt='';
+    $id('v-trans').textContent='Listening...';
+    $id('btn-mic').classList.add('on');
+    try{A.rec.eng.start();}catch(e){}
+}
+function micStop(){
+    A.rec.on=false;
+    $id('btn-mic').classList.remove('on');
+    try{A.rec.eng.stop();}catch(e){}
 }
 
-// ============================================================
-//  BIND ALL EVENTS (single place — no onclick attributes)
-// ============================================================
-function bindEvents() {
-    // Login
-    $id('btn-login').addEventListener('click', doLogin);
-    $id('inp-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-
-    // Admin logout
-    $id('btn-admin-logout').addEventListener('click', doLogout);
-
-    // Student logout
-    $id('btn-stu-logout').addEventListener('click', doLogout);
-
-    // PDF file chosen
-    $id('inp-pdf').addEventListener('change', () => {
-        const f = $id('inp-pdf').files[0];
-        if (f) {
-            $id('file-chosen').textContent = '📄 ' + f.name;
-            $id('inp-book-title').value = f.name.replace(/\.pdf$/i, '');
-        }
-    });
-
-    // Upload book
-    $id('btn-upload').addEventListener('click', doUpload);
-
-    // Add student
-    $id('btn-add-student').addEventListener('click', doAddStudent);
-
-    // Start viva
-    $id('btn-start-viva').addEventListener('click', doStartViva);
-
-    // Viva controls
-    $id('btn-repeat').addEventListener('click', speakQuestion);
-    $id('btn-skip').addEventListener('click', doSkip);
-    $id('btn-mic').addEventListener('click', toggleMic);
-    $id('btn-submit').addEventListener('click', doSubmit);
-    $id('btn-next').addEventListener('click', doNext);
-    $id('btn-end-session').addEventListener('click', () => {
-        if (confirm('End session and save your progress?')) doEndViva();
-    });
-
-    // Summary modal
-    $id('btn-close-summary').addEventListener('click', () => {
-        hideModal('modal-summary');
-        showPage('pg-student');
-        renderStudentPage();
-    });
-    $id('btn-download-report').addEventListener('click', doDownload);
+/* ══════════════════════════════════════
+   BIND EVENTS
+══════════════════════════════════════ */
+function bindAll(){
+    $id('btn-login').onclick=doLogin;
+    $id('l-pass').onkeydown=e=>{if(e.key==='Enter')doLogin();};
+    $id('btn-adm-out').onclick=doLogout;
+    $id('btn-stu-out').onclick=doLogout;
+    $id('btn-api').onclick=saveApi;
+    $id('dz').onclick=()=>$id('inp-pdf').click();
+    $id('dz').ondragover=e=>{
+        e.preventDefault();$id('dz').classList.add('over');
+    };
+    $id('dz').ondragleave=()=>$id('dz').classList.remove('over');
+    $id('dz').ondrop=e=>{
+        e.preventDefault();$id('dz').classList.remove('over');
+        const f=e.dataTransfer.files[0];
+        if(f&&f.type==='application/pdf') setPdf(f);
+    };
+    $id('inp-pdf').onchange=e=>{
+        if(e.target.files[0]) setPdf(e.target.files[0]);
+    };
+    $id('btn-up').onclick=doUpload;
+    $id('btn-stu').onclick=doAddStu;
+    $id('btn-start').onclick=doStartViva;
+    $id('btn-rep').onclick=speakQ;
+    $id('btn-skp').onclick=doSkip;
+    $id('btn-mic').onclick=()=>{A.rec.on?micStop():micStart();};
+    $id('btn-sub').onclick=doSubmit;
+    $id('btn-nxt').onclick=doNext;
+    $id('btn-end').onclick=()=>{
+        if(confirm('End session and save your progress?')) endViva();
+    };
+    $id('btn-mc').onclick=()=>{
+        $id('modal').classList.remove('on');
+        go('pg-student');
+        renderStudent();
+    };
+    $id('btn-dl').onclick=doDownload;
 }
 
-// ============================================================
-//  AUTH
-// ============================================================
-function doLogin() {
-    const u = $id('inp-user').value.trim();
-    const p = $id('inp-pass').value;
-    if (!u || !p) return;
-
-    const found = APP.users.find(x => x.username === u && x.password === hp(p));
-    if (!found) {
-        $id('inp-pass').value = '';
-        $id('inp-pass').style.borderColor = '#dc3545';
-        setTimeout(() => $id('inp-pass').style.borderColor = '#ddd', 1500);
+/* ══════════════════════════════════════
+   AUTH
+══════════════════════════════════════ */
+function doLogin(){
+    const u=$id('l-user').value.trim();
+    const p=$id('l-pass').value;
+    const err=$id('l-err');
+    err.style.display='none';
+    if(!u||!p) return;
+    const found=A.users.find(x=>x.u===u&&x.p===hp(p));
+    if(!found){
+        $id('l-pass').value='';
+        err.style.display='block';
         return;
     }
-
-    APP.user = found;
-    if (found.role === 'admin') {
-        showPage('pg-admin');
-        renderAdminPage();
-    } else {
-        showPage('pg-student');
-        renderStudentPage();
-    }
+    A.user=found;
+    if(found.role==='admin'){go('pg-admin');renderAdmin();}
+    else{go('pg-student');renderStudent();}
 }
-
-function doLogout() {
-    if (!confirm('Logout?')) return;
-    APP.user = null;
+function doLogout(){
+    if(!confirm('Sign out?')) return;
+    A.user=null;
     window.speechSynthesis.cancel();
-    stopMic();
-    clearInterval(APP.viva.timerRef);
-    showPage('pg-login');
-    $id('inp-user').value = '';
-    $id('inp-pass').value = '';
+    micStop();
+    clearInterval(A.viva.tRef);
+    go('pg-login');
+    $id('l-user').value='';
+    $id('l-pass').value='';
 }
 
-// ============================================================
-//  PDF UPLOAD & EXTRACTION
-// ============================================================
-async function doUpload() {
-    const file = $id('inp-pdf').files[0];
-    const title = $id('inp-book-title').value.trim();
-    const subject = $id('inp-book-subject').value.trim() || 'Medical';
-    const diff = $id('inp-book-diff').value;
+/* ══════════════════════════════════════
+   API KEY
+══════════════════════════════════════ */
+function saveApi(){
+    const k=$id('inp-api').value.trim();
+    if(!k||!k.startsWith('AIza')){
+        alert('Invalid key — should start with AIzaSy...');
+        return;
+    }
+    A.apiKey=k;
+    lsSave('mv_api',k);
+    showApiOk();
+}
+function showApiOk(){
+    $id('api-box').innerHTML=`
+        <div class="api-ok">
+            ✅ Gemini AI Connected — AI question generation and evaluation active
+        </div>`;
+}
 
-    if (!file || !title) return;
+/* ══════════════════════════════════════
+   GEMINI AI CALL
+══════════════════════════════════════ */
+async function ai(prompt, maxTokens=2000){
+    if(!A.apiKey) return null;
+    const url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${A.apiKey}`;
+    try{
+        const r=await fetch(url,{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({
+                contents:[{parts:[{text:prompt}]}],
+                generationConfig:{
+                    temperature:0.7,
+                    maxOutputTokens:maxTokens,
+                    responseMimeType:'application/json'
+                }
+            })
+        });
+        const d=await r.json();
+        return d?.candidates?.[0]?.content?.parts?.[0]?.text||null;
+    }catch(e){return null;}
+}
 
-    $id('btn-upload').disabled = true;
-    $id('upload-progress').classList.remove('hidden');
+/* ══════════════════════════════════════
+   WIKIMEDIA IMAGE FETCHER
+   Fetches real open-source medical images
+   from Wikimedia Commons based on topic
+══════════════════════════════════════ */
+async function fetchMedicalImage(topic, subject){
+    // Build a targeted search query
+    const query=buildImageQuery(topic, subject);
 
-    const book = {
-        id: Date.now(),
-        title, subject, diff,
-        date: new Date().toISOString(),
-        by: APP.user.username,
-        textQuestions: [],
-        imageQuestions: [],
-        pageCount: 0
+    // Try Wikimedia Commons API
+    try{
+        const url=`https://en.wikipedia.org/w/api.php?`+
+            `action=query&generator=search&gsrnamespace=6&`+
+            `gsrsearch=File:${encodeURIComponent(query)}&`+
+            `prop=imageinfo&iiprop=url|size|mime&`+
+            `gsrlimit=10&format=json&origin=*`;
+
+        const r=await fetch(url);
+        const d=await r.json();
+        const pages=d?.query?.pages;
+        if(!pages) return null;
+
+        // Filter for actual medical images
+        const imgs=Object.values(pages)
+            .filter(p=>{
+                const info=p.imageinfo?.[0];
+                if(!info) return false;
+                const mime=info.mime||'';
+                const isImg=mime.startsWith('image/');
+                const notSvgOnly=mime!=='image/svg+xml';
+                const goodSize=info.width>=200&&info.height>=150;
+                return isImg&&goodSize;
+            })
+            .map(p=>p.imageinfo[0].url);
+
+        return imgs[0]||null;
+    }catch(e){return null;}
+}
+
+// Also try Wikipedia article thumbnail as fallback
+async function fetchWikiThumb(topic){
+    try{
+        const url=`https://en.wikipedia.org/w/api.php?`+
+            `action=query&titles=${encodeURIComponent(topic)}&`+
+            `prop=pageimages&pithumbsize=600&format=json&origin=*`;
+        const r=await fetch(url);
+        const d=await r.json();
+        const pages=d?.query?.pages;
+        if(!pages) return null;
+        const page=Object.values(pages)[0];
+        return page?.thumbnail?.source||null;
+    }catch(e){return null;}
+}
+
+function buildImageQuery(topic, subject){
+    // Medical image search terms that give good Commons results
+    const medPrefixes={
+        anatomy:['anatomy','anatomical diagram','cross section'],
+        pharmacology:['pharmacology','drug mechanism','receptor'],
+        physiology:['physiology','diagram','mechanism'],
+        pathology:['pathology','histology','micrograph'],
+        medicine:['medical diagram','clinical','disease'],
+        surgery:['surgical anatomy','procedure'],
+        biochemistry:['biochemistry','metabolic pathway','enzyme'],
+        microbiology:['bacteria','virus','microscopy'],
+        default:['medical diagram','anatomy chart']
+    };
+    const subjectLower=subject.toLowerCase();
+    let prefixes=medPrefixes.default;
+    for(const [key,vals] of Object.entries(medPrefixes)){
+        if(subjectLower.includes(key)){prefixes=vals;break;}
+    }
+    const prefix=prefixes[Math.floor(Math.random()*prefixes.length)];
+    return `${topic} ${prefix}`;
+}
+
+/* ══════════════════════════════════════
+   PDF PROCESSING
+══════════════════════════════════════ */
+let pendingFile=null;
+function setPdf(f){
+    pendingFile=f;
+    $id('inp-bt').value=f.name.replace(/\.pdf$/i,'');
+    $id('fc').textContent=`📄 ${f.name} (${(f.size/1048576).toFixed(1)} MB)`;
+}
+
+async function doUpload(){
+    if(!pendingFile){alert('Choose a PDF first');return;}
+    const title=$id('inp-bt').value.trim();
+    if(!title){alert('Enter a book title');return;}
+    if(!A.apiKey){alert('Activate Gemini AI first — paste your free API key above');return;}
+
+    $id('btn-up').disabled=true;
+    $id('up-ui').classList.remove('hidden');
+
+    const book={
+        id:Date.now(), title,
+        subject:$id('inp-bs').value.trim()||'Medical',
+        diff:$id('inp-bd').value,
+        date:new Date().toISOString(),
+        by:A.user.u,
+        textQs:[], imageQs:[], pages:0, topics:[]
     };
 
-    await extractBook(file, book);
+    prog(5,'Reading PDF pages...');
+    const {chunks,pageCount,topics}=await extractPDF(pendingFile, book.subject);
+    book.pages=pageCount;
+    book.topics=topics;
 
-    APP.books.push(book);
-    safeSave('viva_books', APP.books);
+    prog(30,'Generating 150 questions with AI...');
+    book.textQs=await genTextQs(chunks, book);
 
-    setProgress(100, `✅ Done! ${book.textQuestions.length} text + ${book.imageQuestions.length} image questions`);
+    prog(72,'Generating image questions with topic-matched medical images...');
+    book.imageQs=await genImageQs(book.topics, book);
 
-    setTimeout(() => {
-        $id('btn-upload').disabled = false;
-        $id('upload-progress').classList.add('hidden');
-        $id('inp-pdf').value = '';
-        $id('inp-book-title').value = '';
-        $id('inp-book-subject').value = '';
-        $id('file-chosen').textContent = '';
-        renderAdminPage();
-    }, 2500);
+    prog(96,'Saving book...');
+    A.books.push(book);
+    lsSave('mv_books',A.books);
+
+    prog(100,
+        `✅ Done! ${book.textQs.length} text questions + ${book.imageQs.length} image questions`);
+
+    setTimeout(()=>{
+        $id('btn-up').disabled=false;
+        $id('up-ui').classList.add('hidden');
+        pendingFile=null;
+        $id('inp-pdf').value='';
+        $id('inp-bt').value='';
+        $id('inp-bs').value='';
+        $id('fc').textContent='';
+        renderAdmin();
+    },2500);
 }
 
-async function extractBook(file, book) {
-    return new Promise(resolve => {
-        const reader = new FileReader();
-        reader.onload = async (ev) => {
-            try {
-                const pdf = await pdfjsLib.getDocument({ data: ev.target.result }).promise;
-                book.pageCount = pdf.numPages;
+function prog(p,msg){
+    $id('pb').style.width=p+'%';
+    $id('pm').textContent=msg;
+}
 
-                // For large books, sample strategically
-                const totalPages = pdf.numPages;
-                const maxTextPages = Math.min(totalPages, 300);
-                const maxImgPages = Math.min(totalPages, 100);
+/* ══════════════════════════════════════
+   PDF TEXT EXTRACTION
+══════════════════════════════════════ */
+async function extractPDF(file, subject){
+    return new Promise(resolve=>{
+        const fr=new FileReader();
+        fr.onload=async ev=>{
+            const chunks=[];
+            const allTopics=new Set();
+            let pageCount=0;
 
-                // Text extraction - every Nth page
-                const textStep = Math.max(1, Math.floor(totalPages / maxTextPages));
-                let allText = '';
-                const sectionTexts = [];
+            try{
+                const pdf=await pdfjsLib.getDocument({data:ev.target.result}).promise;
+                pageCount=pdf.numPages;
 
-                setProgress(5, 'Extracting text from pages...');
+                // Smart sampling: get every page up to 400, then every other
+                const step=pageCount>400?2:1;
+                let buffer='';
+                let bufPages=0;
+                const CHUNK_PAGES=8;
 
-                for (let pg = 1; pg <= totalPages; pg += textStep) {
-                    try {
-                        const page = await pdf.getPage(pg);
-                        const tc = await page.getTextContent();
-                        const pageText = tc.items.map(i => i.str).join(' ').trim();
-                        if (pageText.length > 80) {
-                            allText += pageText + '\n';
-                            sectionTexts.push({ text: pageText, page: pg });
+                for(let pg=1;pg<=pageCount;pg+=step){
+                    try{
+                        const page=await pdf.getPage(pg);
+                        const tc=await page.getTextContent();
+                        const txt=tc.items.map(i=>i.str).join(' ').trim();
+                        if(txt.length>60){
+                            buffer+=txt+' ';
+                            bufPages++;
                         }
-                        const pct = 5 + Math.floor((pg / totalPages) * 40);
-                        setProgress(pct, `Reading page ${pg} of ${totalPages}...`);
-                    } catch(e) { /* skip bad page */ }
+                        if(bufPages>=CHUNK_PAGES||pg>=pageCount){
+                            const clean=buffer.replace(/\s+/g,' ').trim();
+                            if(clean.length>300){
+                                chunks.push({
+                                    text:clean.substring(0,4000),
+                                    pageStart:pg-bufPages*step,
+                                    pageEnd:pg
+                                });
+                                // Extract topics from this chunk
+                                extractLocalTopics(clean,subject).forEach(t=>allTopics.add(t));
+                            }
+                            buffer='';bufPages=0;
+                        }
+                        // Progress
+                        prog(5+Math.floor((pg/pageCount)*22),
+                            `Reading page ${pg} of ${pageCount}...`);
+                    }catch(e){}
                 }
+            }catch(e){}
 
-                // Generate text questions from extracted content
-                setProgress(50, 'Generating text questions...');
-                book.textQuestions = generateTextQuestions(allText, sectionTexts);
+            resolve({
+                chunks,
+                pageCount,
+                topics:[...allTopics].slice(0,80)
+            });
+        };
+        fr.onerror=()=>resolve({chunks:[],pageCount:0,topics:[]});
+        fr.readAsArrayBuffer(file);
+    });
+}
 
-                // Image extraction - render pages as canvas
-                setProgress(60, 'Extracting images and graphs...');
-                const imgStep = Math.max(1, Math.floor(totalPages / maxImgPages));
+/* ══════════════════════════════════════
+   LOCAL TOPIC EXTRACTION (from PDF text)
+══════════════════════════════════════ */
+function extractLocalTopics(text, subject){
+    const stopWords=new Set([
+        'the','a','an','is','are','was','were','be','been','being','have',
+        'has','had','do','does','did','will','would','could','should','may',
+        'might','must','shall','can','of','in','to','for','on','with','at',
+        'by','from','this','that','these','those','and','but','or','as',
+        'if','which','who','when','where','how','all','any','both','each',
+        'more','other','some','such','than','also','into','over','after',
+        'page','chapter','table','figure','section','ref','references',
+        'www','http','isbn','et','al','ie','eg'
+    ]);
 
-                for (let pg = 1; pg <= totalPages; pg += imgStep) {
-                    try {
-                        const page = await pdf.getPage(pg);
-                        const viewport = page.getViewport({ scale: 1.8 });
-                        const canvas = document.createElement('canvas');
-                        canvas.width = viewport.width;
-                        canvas.height = viewport.height;
-                        const ctx = canvas.getContext('2d');
+    const topics=new Set();
+    const sentences=text.split(/[.!?\n]+/).filter(s=>s.trim().length>30);
 
-                        await page.render({ canvasContext: ctx, viewport }).promise;
+    sentences.forEach(sent=>{
+        const words=sent.trim().split(/\W+/)
+            .filter(w=>w.length>3&&!/^\d+$/.test(w)&&!stopWords.has(w.toLowerCase()));
 
-                        // Check if page has visual content (graphs, images)
-                        if (pageHasVisuals(ctx, canvas.width, canvas.height)) {
-                            const imgData = canvas.toDataURL('image/jpeg', 0.65);
-                            book.imageQuestions.push({
-                                image: imgData,
-                                page: pg,
-                                question: buildImageQuestion(pg, book.subject)
+        // 2-word and 3-word noun phrases
+        for(let i=0;i<words.length-1;i++){
+            const w1=words[i], w2=words[i+1];
+            const phrase2=`${w1} ${w2}`;
+            const phrase3=words[i+2]?`${w1} ${w2} ${words[i+2]}`:null;
+
+            if(phrase2.length>8&&phrase2.length<50&&
+               /[A-Z]/.test(w1[0])&&!stopWords.has(w1.toLowerCase())){
+                topics.add(phrase2);
+            }
+            if(phrase3&&phrase3.length<60&&
+               /[A-Z]/.test(w1[0])){
+                topics.add(phrase3);
+            }
+        }
+
+        // Medical terms (single word)
+        words.forEach(w=>{
+            if(/itis|osis|emia|uria|oma|pathy|ectomy|otomy|plasty|
+                scopy|graphy|ology|algia|rrhea|genesis|toxic|troph/i.test(w)
+               &&w.length>5){
+                topics.add(w);
+            }
+        });
+    });
+
+    return [...topics].slice(0,40);
+}
+
+/* ══════════════════════════════════════
+   AI TEXT QUESTION GENERATION
+══════════════════════════════════════ */
+async function genTextQs(chunks, book){
+    const allQs=[];
+    const TARGET=150;
+    if(!chunks.length) return fallbackTextQs(book, TARGET);
+
+    // How many questions per chunk
+    const perChunk=Math.ceil(TARGET/chunks.length);
+
+    for(let i=0;i<chunks.length&&allQs.length<TARGET;i++){
+        const chunk=chunks[i];
+        const need=Math.min(perChunk, TARGET-allQs.length);
+
+        const prompt=`You are a senior medical examiner conducting a professional MBBS viva examination.
+
+Generate exactly ${need} high-quality viva examination questions based ONLY on the following text from "${book.title}" (${book.subject}).
+
+TEXT CONTENT:
+${chunk.text}
+
+STRICT RULES:
+- Questions MUST come directly from this text content only
+- Do NOT include answers within the question
+- Questions must require detailed clinical answers (100-200 words to answer well)
+- Mix these types: definition, mechanism, clinical presentation, investigations, management, complications, comparison, applied physiology
+- Professional viva style — open-ended, not MCQ
+- Vary difficulty: easy (30%), medium (50%), hard (20%)
+
+Return ONLY a valid JSON array, no other text:
+[
+  {"q":"Full question text here?","topic":"Specific topic name","diff":"easy"},
+  {"q":"Another question?","topic":"Topic","diff":"medium"}
+]`;
+
+        const res=await ai(prompt, 2000);
+        if(res){
+            try{
+                const parsed=JSON.parse(res.replace(/```json|```/g,'').trim());
+                if(Array.isArray(parsed)){
+                    parsed.forEach(q=>{
+                        if(q.q&&q.topic&&allQs.length<TARGET){
+                            allQs.push({
+                                q:q.q.trim(),
+                                topic:q.topic.trim(),
+                                diff:['easy','medium','hard'].includes(q.diff)?q.diff:'medium'
                             });
                         }
-
-                        const pct = 60 + Math.floor(((pg - 1) / totalPages) * 35);
-                        setProgress(pct, `Analyzing page ${pg} for visuals...`);
-                    } catch(e) { /* skip */ }
+                    });
                 }
-
-                setProgress(98, 'Finalizing...');
-            } catch(e) {
-                // Silent fail — save what we have
-                book.textQuestions = book.textQuestions.length
-                    ? book.textQuestions
-                    : [{ q: `Describe the key concepts in ${book.subject}`, topic: book.subject, diff: book.diff }];
-            }
-            resolve();
-        };
-        reader.onerror = () => {
-            book.textQuestions = [];
-            resolve();
-        };
-        reader.readAsArrayBuffer(file);
-    });
-}
-
-function pageHasVisuals(ctx, w, h) {
-    // Sample pixels to detect non-white, non-text content (graphs/charts)
-    try {
-        const sample = ctx.getImageData(0, 0, w, h);
-        const d = sample.data;
-        let coloredPixels = 0;
-        const step = 20; // sample every 20th pixel for speed
-
-        for (let i = 0; i < d.length; i += 4 * step) {
-            const r = d[i], g = d[i+1], b = d[i+2];
-            const brightness = (r + g + b) / 3;
-            // Detect colored (non-gray, non-white) pixels — likely a graph
-            const isColored = Math.abs(r - g) > 25 || Math.abs(g - b) > 25 || Math.abs(r - b) > 25;
-            const notTooLight = brightness < 230;
-            const notTooBlack = brightness > 15;
-            if (isColored && notTooLight && notTooBlack) coloredPixels++;
-        }
-
-        const sampledTotal = (d.length / 4) / step;
-        return (coloredPixels / sampledTotal) > 0.04; // 4% colored pixels = has visuals
-    } catch(e) { return false; }
-}
-
-function buildImageQuestion(page, subject) {
-    const templates = [
-        `Look at this graph/diagram from the ${subject} textbook. Describe what it shows, identify the key trends or structures, and explain its clinical significance.`,
-        `Analyze this figure from page ${page}. What are the labeled components? What does this image demonstrate clinically?`,
-        `Examine this diagram carefully. Explain the physiological or anatomical concept it represents and its importance in ${subject}.`,
-        `Describe everything you observe in this image. What condition or concept is being illustrated, and what are its clinical implications?`,
-        `This is an image from your ${subject} textbook. Identify the key features, label what you can, and explain why it is important.`
-    ];
-    return templates[page % templates.length];
-}
-
-function generateTextQuestions(fullText, sections) {
-    const questions = [];
-    const seen = new Set();
-
-    // Medical question patterns — professional viva style
-    const qTemplates = [
-        t => `Define ${t} and explain its pathophysiology.`,
-        t => `What are the clinical features of ${t}? How would you diagnose it?`,
-        t => `Discuss the management and treatment of ${t}.`,
-        t => `Explain the mechanism of ${t} and its clinical significance.`,
-        t => `What are the complications of ${t}? How are they managed?`,
-        t => `Describe the etiology and epidemiology of ${t}.`,
-        t => `How does ${t} present clinically? What investigations would you order?`,
-        t => `Compare and contrast ${t} with related conditions.`,
-        t => `What is the role of ${t} in clinical practice? Explain with examples.`,
-        t => `Discuss the differential diagnosis when a patient presents with ${t}.`
-    ];
-
-    // Extract meaningful topics from text
-    const topics = extractMedicalTopics(fullText);
-
-    topics.forEach((topic, i) => {
-        if (seen.has(topic) || topic.length < 8) return;
-        seen.add(topic);
-
-        const template = qTemplates[i % qTemplates.length];
-        questions.push({
-            q: template(topic),
-            topic: topic,
-            diff: ['easy', 'medium', 'hard'][i % 3]
-        });
-    });
-
-    // Add some section-specific questions
-    sections.slice(0, 20).forEach((sec, i) => {
-        const snippet = sec.text.substring(0, 200).trim();
-        if (snippet.length < 60) return;
-        questions.push({
-            q: `Based on the following passage, explain the concept and its clinical relevance:\n\n"${snippet}..."`,
-            topic: 'Passage Analysis',
-            diff: 'hard'
-        });
-    });
-
-    return questions.slice(0, 60); // max 60 text questions per book
-}
-
-function extractMedicalTopics(text) {
-    if (!text || text.length < 100) return [];
-
-    const stopWords = new Set([
-        'the','a','an','is','are','was','were','be','been','being',
-        'have','has','had','do','does','did','will','would','could',
-        'should','may','might','must','shall','can','of','in','to',
-        'for','on','with','at','by','from','up','about','into','through',
-        'during','before','after','above','below','between','this','that',
-        'these','those','and','but','or','so','yet','both','either',
-        'neither','not','only','own','same','than','too','very',
-        'just','which','who','whom','whose','where','when','how',
-        'all','each','every','few','more','most','other','some','such',
-        'no','nor','not','also','as','if'
-    ]);
-
-    // Sentence splitting
-    const sentences = text
-        .replace(/\s+/g, ' ')
-        .split(/(?<=[.!?])\s+/)
-        .filter(s => s.length > 40 && s.length < 500);
-
-    const topicScores = {};
-
-    sentences.forEach(sent => {
-        const words = sent.split(/\W+/).filter(w =>
-            w.length > 4 && !stopWords.has(w.toLowerCase()) && /[a-zA-Z]/.test(w)
-        );
-
-        // 1-word medical terms (capitalized or ending in -itis, -oma, -sis etc.)
-        words.forEach(w => {
-            const wl = w.toLowerCase();
-            if (/itis|osis|emia|uria|oma|pathy|ectomy|otomy|plasty|scopy|graphy|ology|itis|algia|rrhagia/.test(wl)) {
-                topicScores[w] = (topicScores[w] || 0) + 3;
-            }
-        });
-
-        // 2-3 word phrases
-        for (let i = 0; i < words.length - 1; i++) {
-            const phrase2 = [words[i], words[i+1]].join(' ');
-            const phrase3 = words[i+2] ? [words[i], words[i+1], words[i+2]].join(' ') : null;
-
-            if (phrase2.length > 8 && phrase2.length < 50) {
-                topicScores[phrase2] = (topicScores[phrase2] || 0) + 1;
-            }
-            if (phrase3 && phrase3.length > 10 && phrase3.length < 60) {
-                topicScores[phrase3] = (topicScores[phrase3] || 0) + 2;
+            }catch(e){
+                // Manual extraction fallback
+                const lines=(res||'').split('\n')
+                    .filter(l=>l.trim().endsWith('?')&&l.length>20);
+                lines.slice(0,need).forEach(l=>{
+                    if(allQs.length<TARGET){
+                        allQs.push({
+                            q:l.replace(/^[\d\-\*\.]+\s*/,'').trim(),
+                            topic:book.subject,
+                            diff:'medium'
+                        });
+                    }
+                });
             }
         }
-    });
 
-    // Sort by frequency and return top topics
-    return Object.entries(topicScores)
-        .filter(([t, s]) => s >= 2 && t.split(' ').length <= 5)
-        .sort((a, b) => b[1] - a[1])
-        .map(([t]) => t)
-        .slice(0, 40);
-}
+        prog(30+Math.floor((i/chunks.length)*40),
+            `Generated ${allQs.length}/${TARGET} questions...`);
 
-function setProgress(pct, msg) {
-    $id('upload-bar').style.width = pct + '%';
-    $id('upload-msg').textContent = msg;
-}
-
-// ============================================================
-//  ADMIN PAGE
-// ============================================================
-function renderAdminPage() {
-    $id('stat-books').textContent = APP.books.length;
-    $id('stat-students').textContent = APP.users.filter(u => u.role === 'student').length;
-    $id('stat-sessions').textContent = APP.sessions.length;
-
-    // Books list
-    const bHTML = APP.books.length
-        ? APP.books.map(b => `
-            <div class="session-item">
-                <strong>📖 ${b.title}</strong>
-                <div style="color:#666; font-size:13px; margin-top:5px;">
-                    ${b.subject} &bull; ${b.diff} &bull; ${b.pageCount} pages<br>
-                    📝 ${b.textQuestions.length} text questions &bull;
-                    🖼️ ${b.imageQuestions.length} image questions
-                </div>
-                <button class="btn btn-danger btn-sm" style="margin-top:8px;"
-                    onclick="deleteBook(${b.id})">🗑️ Delete</button>
-            </div>`).join('')
-        : '<p style="color:#888;">No books uploaded yet.</p>';
-    setHTML('admin-books-list', bHTML);
-
-    // Students
-    const sHTML = APP.users.filter(u => u.role === 'student').map(u => {
-        const sess = APP.sessions.filter(s => s.username === u.username);
-        const avg = sess.length
-            ? (sess.reduce((a, b) => a + parseFloat(b.score), 0) / sess.length).toFixed(1)
-            : '—';
-        return `
-            <div class="session-item">
-                <strong>👤 ${u.username}</strong>
-                <div style="color:#666; font-size:13px; margin-top:4px;">
-                    Sessions: ${sess.length} &bull; Avg Score: ${avg}
-                </div>
-            </div>`;
-    }).join('') || '<p style="color:#888;">No students yet.</p>';
-    setHTML('admin-students-list', sHTML);
-
-    // Recent sessions
-    const rHTML = APP.sessions.length
-        ? [...APP.sessions].reverse().slice(0, 10).map(s => `
-            <div class="session-item">
-                <strong>👤 ${s.username}</strong>
-                <div style="color:#666; font-size:13px; margin-top:4px;">
-                    Score: <b>${s.score}/10</b> (${s.grade}) &bull;
-                    ${s.answered}/${s.total} questions &bull;
-                    ${new Date(s.date).toLocaleString()}
-                </div>
-            </div>`).join('')
-        : '<p style="color:#888;">No sessions yet.</p>';
-    setHTML('admin-sessions-list', rHTML);
-}
-
-function deleteBook(id) {
-    if (!confirm('Delete this book permanently?')) return;
-    APP.books = APP.books.filter(b => b.id !== id);
-    safeSave('viva_books', APP.books);
-    renderAdminPage();
-}
-
-function doAddStudent() {
-    const u = $id('inp-stu-user').value.trim();
-    const p = $id('inp-stu-pass').value;
-    if (!u || p.length < 6) return;
-    if (APP.users.find(x => x.username === u)) return;
-
-    APP.users.push({ username: u, password: hp(p), role: 'student' });
-    safeSave('viva_users', APP.users);
-    $id('inp-stu-user').value = '';
-    $id('inp-stu-pass').value = '';
-    renderAdminPage();
-}
-
-// ============================================================
-//  STUDENT PAGE
-// ============================================================
-function renderStudentPage() {
-    $id('stu-title').textContent = `Welcome, ${APP.user.username}! 👋`;
-
-    const mySess = APP.sessions.filter(s => s.username === APP.user.username);
-    $id('stu-sessions').textContent = mySess.length;
-
-    if (mySess.length) {
-        const avg = (mySess.reduce((a, b) => a + parseFloat(b.score), 0) / mySess.length).toFixed(1);
-        const best = Math.max(...mySess.map(s => parseFloat(s.score))).toFixed(1);
-        $id('stu-avg').textContent = avg;
-        $id('stu-best').textContent = best;
-    } else {
-        $id('stu-avg').textContent = '—';
-        $id('stu-best').textContent = '—';
+        // Small delay to respect rate limits
+        await sleep(300);
     }
+
+    // Fill remaining with AI-generated topic questions if needed
+    if(allQs.length<TARGET&&book.topics.length){
+        const fallbacks=await genTopicQs(
+            book.topics.slice(0,TARGET-allQs.length),
+            book
+        );
+        allQs.push(...fallbacks.slice(0,TARGET-allQs.length));
+    }
+
+    return allQs.slice(0,TARGET);
+}
+
+// Generate questions from extracted topics
+async function genTopicQs(topics, book){
+    const qs=[];
+    const batch=topics.slice(0,30);
+
+    const prompt=`You are a medical examiner for ${book.subject}.
+Generate one professional viva question for each of these medical topics from "${book.title}".
+Topics: ${batch.join(', ')}
+
+Return ONLY valid JSON array:
+[{"q":"Question?","topic":"topic","diff":"medium"}]`;
+
+    const res=await ai(prompt, 2000);
+    if(res){
+        try{
+            const parsed=JSON.parse(res.replace(/```json|```/g,'').trim());
+            if(Array.isArray(parsed)) return parsed;
+        }catch(e){}
+    }
+    return fallbackTextQs(book, batch.length);
+}
+
+function fallbackTextQs(book, n){
+    const templates=[
+        t=>`Define ${t} and explain its pathophysiology.`,
+        t=>`What are the clinical features and diagnosis of ${t}?`,
+        t=>`How do you manage a patient with ${t}?`,
+        t=>`What are the complications of ${t}?`,
+        t=>`Describe the etiology and epidemiology of ${t}.`,
+        t=>`Explain the mechanism involved in ${t}.`,
+        t=>`What investigations would you order for ${t}?`,
+        t=>`Describe the differential diagnosis of ${t}.`
+    ];
+    const topics=book.topics.length?book.topics:
+        [book.subject,'clinical features','pathophysiology','management'];
+    return Array.from({length:n},(_,i)=>({
+        q:templates[i%templates.length](topics[i%topics.length]),
+        topic:topics[i%topics.length],
+        diff:['easy','medium','hard'][i%3]
+    }));
+}
+
+/* ══════════════════════════════════════
+   IMAGE QUESTION GENERATION
+   Uses real open-source medical images
+   from Wikimedia Commons / Wikipedia
+══════════════════════════════════════ */
+async function genImageQs(topics, book){
+    const imageQs=[];
+    const TARGET=50;
+
+    // Ask AI to suggest best visual topics from the book's content
+    const vizTopics=await getVisualTopics(topics, book);
+    const topicsToUse=vizTopics.length?vizTopics:topics.slice(0,TARGET);
+
+    for(let i=0;i<topicsToUse.length&&imageQs.length<TARGET;i++){
+        const topic=topicsToUse[i];
+
+        // Try to get a real medical image from open sources
+        let imageUrl=null;
+
+        // Attempt 1: Wikipedia page thumbnail
+        imageUrl=await fetchWikiThumb(topic);
+
+        // Attempt 2: Wikimedia Commons file search
+        if(!imageUrl){
+            imageUrl=await fetchMedicalImage(topic, book.subject);
+        }
+
+        // Attempt 3: Try simplified topic name
+        if(!imageUrl&&topic.includes(' ')){
+            const simpler=topic.split(' ').slice(0,2).join(' ');
+            imageUrl=await fetchWikiThumb(simpler);
+        }
+
+        // Generate the question for this topic using AI
+        const question=await genImageQuestion(topic, book.subject, !!imageUrl);
+
+        imageQs.push({
+            topic,
+            question,
+            imageUrl,   // Real open-source image URL (or null)
+            hasImage:!!imageUrl
+        });
+
+        prog(72+Math.floor((i/topicsToUse.length)*22),
+            `Fetching image ${i+1}/${Math.min(topicsToUse.length,TARGET)}: ${topic}`);
+
+        await sleep(200);
+    }
+
+    return imageQs.slice(0,TARGET);
+}
+
+async function getVisualTopics(topics, book){
+    if(!topics.length) return [];
+    const prompt=`From this list of medical topics from "${book.title}" (${book.subject}),
+select the 50 topics that would have the most educational medical diagrams, charts, graphs,
+anatomical illustrations, or clinical images. These should be topics where visual learning
+is most important.
+
+Topics list: ${topics.slice(0,80).join(', ')}
+
+Return ONLY a JSON array of topic strings, ordered by visual importance:
+["topic1","topic2","topic3"]`;
+
+    const res=await ai(prompt, 1000);
+    if(res){
+        try{
+            const parsed=JSON.parse(res.replace(/```json|```/g,'').trim());
+            if(Array.isArray(parsed)) return parsed.slice(0,50);
+        }catch(e){}
+    }
+    return topics.slice(0,50);
+}
+
+async function genImageQuestion(topic, subject, hasImage){
+    const prompt=`Generate ONE professional medical viva question for a student looking at a medical image/diagram of "${topic}" in ${subject}.
+
+The question should ask the student to:
+- Identify and describe what they see
+- Explain the underlying concept
+- Discuss clinical significance
+- ${hasImage?'Describe specific features visible in the image':'Describe what such a diagram typically shows'}
+
+Return ONLY a JSON object:
+{"question":"Full question text here asking about the visual representation of ${topic}?"}`;
+
+    const res=await ai(prompt, 400);
+    if(res){
+        try{
+            const parsed=JSON.parse(res.replace(/```json|```/g,'').trim());
+            if(parsed.question) return parsed.question;
+        }catch(e){}
+    }
+    return defaultImgQ(topic, subject);
+}
+
+function defaultImgQ(topic, subject){
+    const qs=[
+        `Examine this medical image of ${topic}. Identify all visible structures or components, explain what this image demonstrates, and discuss its clinical significance in ${subject}.`,
+        `This image shows ${topic}. Describe what you observe, label the key components if possible, and explain why understanding this is important for clinical practice.`,
+        `Analyze this diagram/image related to ${topic}. What concept is being illustrated? Describe the key features and explain the clinical implications.`,
+        `Looking at this medical image of ${topic}, describe all components visible, explain the underlying mechanism or anatomy shown, and state how this knowledge is applied clinically.`,
+        `This figure illustrates ${topic}. Provide a complete description including identification of structures, explanation of the process shown, and its relevance to patient management.`
+    ];
+    return qs[Math.floor(Math.random()*qs.length)];
+}
+
+/* ══════════════════════════════════════
+   AI EVALUATION
+══════════════════════════════════════ */
+async function evalAnswer(answer, question){
+    const prompt=`You are a strict, experienced medical examiner evaluating a student's viva answer.
+
+QUESTION: ${question.question}
+TOPIC: ${question.topic}
+TYPE: ${question.type==='image'?'Image/Visual analysis question':'Text-based clinical question'}
+STUDENT'S ANSWER: ${answer}
+
+Evaluate thoroughly. Score out of 10 based on:
+- Medical accuracy and correctness (35%)
+- Completeness and depth of knowledge (30%)
+- Appropriate medical terminology (20%)
+- Logical structure and clarity (15%)
+
+Return ONLY valid JSON:
+{
+  "score": 7.5,
+  "grade": "B+",
+  "summary": "One clear paragraph assessing overall answer quality",
+  "strengths": ["Specific strength 1","Specific strength 2","Specific strength 3"],
+  "improvements": ["Specific missing point 1","Specific missing point 2","Specific missing point 3"],
+  "modelAnswer": "Complete ideal answer in 150-200 words covering all key points",
+  "studyTip": "Specific actionable study advice for this exact topic"
+}`;
+
+    const res=await ai(prompt, 1800);
+    if(res){
+        try{
+            const parsed=JSON.parse(res.replace(/```json|```/g,'').trim());
+            if(typeof parsed.score==='number'&&parsed.grade&&parsed.summary){
+                parsed.score=Math.min(10,Math.max(0,parsed.score));
+                parsed.grade=calcGrade(parsed.score);
+                return parsed;
+            }
+        }catch(e){}
+    }
+    return localEval(answer, question);
+}
+
+function localEval(answer, question){
+    const words=answer.trim().split(/\s+/).filter(w=>w.length>0).length;
+    let score=4;
+    const strengths=[],improvements=[];
+
+    if(words>=200){score+=3;strengths.push('Very comprehensive and detailed answer');}
+    else if(words>=120){score+=2;strengths.push('Good level of detail');}
+    else if(words>=60){score+=1;}
+    else improvements.push('Answer is too brief — aim for at least 100 words');
+
+    const medTerms=['pathophysiology','etiology','clinical','diagnosis','treatment',
+        'management','prognosis','mechanism','complication','syndrome','differential',
+        'investigation','therapy','manifestation','indication','contraindication'];
+    const tc=medTerms.filter(t=>answer.toLowerCase().includes(t)).length;
+    if(tc>=4){score+=2;strengths.push('Excellent use of medical terminology');}
+    else if(tc>=2){score+=1;strengths.push('Good medical vocabulary');}
+    else improvements.push('Use appropriate medical terminology');
+
+    const tw=question.topic.toLowerCase().split(/\W+/).filter(w=>w.length>3);
+    const tm=tw.filter(w=>answer.toLowerCase().includes(w)).length;
+    if(tw.length>0&&tm/tw.length>0.6){score+=1;strengths.push('Answers the question directly');}
+    else improvements.push('Address all aspects of the question topic');
+
+    if(question.type==='image'){
+        const vw=['shows','indicates','represents','demonstrates','visible',
+            'labeled','structure','figure','diagram','graph','chart'];
+        if(vw.some(w=>answer.toLowerCase().includes(w))){
+            score+=0.5;strengths.push('Good visual interpretation');
+        }else improvements.push('Describe what you see in the image specifically');
+    }
+
+    score=parseFloat(Math.min(10,Math.max(0,score)).toFixed(1));
+    return{
+        score, grade:calcGrade(score),
+        summary:score>=7?'Good answer demonstrating solid understanding.':
+            'Answer needs more depth and clinical detail.',
+        strengths:strengths.length?strengths:['Attempted the question'],
+        improvements:improvements.length?improvements:['Add more specific clinical examples'],
+        modelAnswer:`Review ${question.topic} in your textbook for a complete answer including all key clinical points.`,
+        studyTip:`Focus on the pathophysiology and clinical management of ${question.topic}. Practice with past viva questions on this topic.`
+    };
+}
+
+/* ══════════════════════════════════════
+   ADMIN RENDER
+══════════════════════════════════════ */
+function renderAdmin(){
+    $id('s-bk').textContent=A.books.length;
+    $id('s-st').textContent=A.users.filter(u=>u.role==='student').length;
+    $id('s-se').textContent=A.sessions.length;
 
     // Books
-    const bHTML = APP.books.length
-        ? APP.books.map(b => `
-            <div class="book-row" id="row-${b.id}">
-                <label>
-                    <input type="checkbox" id="chk-book-${b.id}"
-                        onchange="this.closest('.book-row').classList.toggle('checked', this.checked)">
-                    <div>
-                        <div><strong>${b.title}</strong></div>
-                        <div style="font-size:13px; color:#666; margin-top:3px;">
-                            ${b.subject} &bull; ${b.diff} &bull; ${b.pageCount} pages<br>
-                            📝 ${b.textQuestions.length} text &bull;
-                            🖼️ ${b.imageQuestions.length} image questions
-                        </div>
-                    </div>
-                </label>
-            </div>`).join('')
-        : '<p style="color:#888;">No books available. Ask admin to upload PDFs.</p>';
-    setHTML('stu-books-list', bHTML);
+    setH('adm-bk', A.books.length ? A.books.map(b=>`
+        <div class="hist-item">
+            <div class="hist-left">
+                <strong>📖 ${b.title}</strong>
+                <span>${b.subject} · ${b.pages} pages · ${b.diff}<br>
+                📝 ${b.textQs.length} text questions · 🖼️ ${b.imageQs.length} image questions<br>
+                🏷️ ${b.topics.slice(0,5).join(', ')}${b.topics.length>5?'...':''}</span>
+            </div>
+            <button class="btn btn-r btn-sm" onclick="delBook(${b.id})">🗑️ Delete</button>
+        </div>`).join('')
+        : '<div class="empty"><div class="ei">📚</div>No books uploaded yet</div>');
 
-    // History
-    const hHTML = mySess.length
-        ? [...mySess].reverse().map((s, i) => `
-            <div class="session-item">
-                <strong>Session ${mySess.length - i}</strong>
-                <div style="color:#666; font-size:13px; margin-top:4px;">
-                    Score: <b>${s.score}/10</b> (${s.grade}) &bull;
-                    ${s.answered}/${s.total} answered &bull;
-                    ${new Date(s.date).toLocaleString()}
+    // Students
+    setH('adm-st', A.users.filter(u=>u.role==='student').length ?
+        A.users.filter(u=>u.role==='student').map(u=>{
+            const sess=A.sessions.filter(s=>s.username===u.u);
+            const avg=sess.length
+                ?(sess.reduce((a,b)=>a+b.score,0)/sess.length).toFixed(1):'—';
+            return`
+            <div class="hist-item">
+                <div class="hist-left">
+                    <strong>👤 ${u.u}</strong>
+                    <span>Sessions: ${sess.length} · Avg Score: ${avg}</span>
                 </div>
-            </div>`).join('')
-        : '<p style="color:#888;">No sessions yet. Start practicing!</p>';
-    setHTML('stu-history', hHTML);
+            </div>`;
+        }).join('')
+        : '<div class="empty"><div class="ei">👥</div>No students yet</div>');
+
+    // Sessions
+    setH('adm-se', A.sessions.length ?
+        [...A.sessions].reverse().slice(0,10).map(s=>`
+        <div class="hist-item">
+            <div class="hist-left">
+                <strong>👤 ${s.username}</strong>
+                <span>${s.answered}/${s.total} answered · ${s.skipped} skipped<br>
+                ${new Date(s.date).toLocaleString()}<br>
+                📚 ${s.books.join(', ')}</span>
+            </div>
+            <div class="g-badge" style="background:${gradeColor(s.grade)}">
+                ${s.score}<br><small style="font-size:11px">${s.grade}</small>
+            </div>
+        </div>`).join('')
+        : '<div class="empty"><div class="ei">🕐</div>No sessions recorded</div>');
 }
 
-// ============================================================
-//  VIVA — START
-// ============================================================
-function doStartViva() {
-    const selectedBooks = APP.books.filter(b => {
-        const chk = $id('chk-book-' + b.id);
-        return chk && chk.checked;
+window.delBook=function(id){
+    if(!confirm('Permanently delete this book and all its questions?')) return;
+    A.books=A.books.filter(b=>b.id!==id);
+    lsSave('mv_books',A.books);
+    renderAdmin();
+};
+
+function doAddStu(){
+    const u=$id('inp-su').value.trim();
+    const p=$id('inp-sp').value;
+    if(!u||p.length<6){alert('Username required and password must be at least 6 characters');return;}
+    if(A.users.find(x=>x.u===u)){alert('Username already exists');return;}
+    A.users.push({u,p:hp(p),role:'student'});
+    lsSave('mv_users',A.users);
+    $id('inp-su').value='';$id('inp-sp').value='';
+    renderAdmin();
+}
+
+/* ══════════════════════════════════════
+   STUDENT RENDER
+══════════════════════════════════════ */
+function renderStudent(){
+    $id('stu-title').textContent=`Welcome, ${A.user.u}! 👋`;
+    const my=A.sessions.filter(s=>s.username===A.user.u);
+    $id('st-se').textContent=my.length;
+    if(my.length){
+        $id('st-av').textContent=(my.reduce((a,b)=>a+b.score,0)/my.length).toFixed(1);
+        $id('st-be').textContent=Math.max(...my.map(s=>s.score)).toFixed(1);
+    }else{
+        $id('st-av').textContent='—';
+        $id('st-be').textContent='—';
+    }
+
+    setH('stu-bk', A.books.length ?
+        A.books.map(b=>`
+        <div class="book-row" id="br-${b.id}" onclick="togBook(${b.id})">
+            <input type="checkbox" id="bc-${b.id}"
+                onclick="event.stopPropagation();
+                this.closest('.book-row').classList.toggle('sel',this.checked)">
+            <div class="book-info">
+                <strong>${b.title}</strong>
+                <span>${b.subject} · ${b.pages} pages · ${b.diff}<br>
+                📝 ${b.textQs.length} text · 🖼️ ${b.imageQs.length} image questions</span>
+            </div>
+        </div>`).join('')
+        : '<div class="empty"><div class="ei">📚</div>No books available — contact admin</div>');
+
+    setH('stu-hist', my.length ?
+        [...my].reverse().map((s,i)=>`
+        <div class="hist-item">
+            <div class="hist-left">
+                <strong>Session ${my.length-i}</strong>
+                <span>${s.answered}/${s.total} answered · ${new Date(s.date).toLocaleString()}<br>
+                📚 ${s.books.join(', ')}</span>
+            </div>
+            <div class="g-badge" style="background:${gradeColor(s.grade)}">
+                ${s.score}<br><small style="font-size:11px">${s.grade}</small>
+            </div>
+        </div>`).join('')
+        : '<div class="empty"><div class="ei">📜</div>No sessions yet — start practising!</div>');
+}
+
+window.togBook=function(id){
+    const cb=$id('bc-'+id);
+    cb.checked=!cb.checked;
+    $id('br-'+id).classList.toggle('sel',cb.checked);
+};
+
+/* ══════════════════════════════════════
+   START VIVA
+══════════════════════════════════════ */
+function doStartViva(){
+    const selBooks=A.books.filter(b=>{
+        const cb=$id('bc-'+b.id);
+        return cb&&cb.checked;
+    });
+    if(!selBooks.length){alert('Select at least one book to practice from');return;}
+
+    const wTxt=$id('chk-txt').checked;
+    const wImg=$id('chk-img').checked;
+    if(!wTxt&&!wImg){alert('Select at least one question type');return;}
+
+    const dur=parseInt($id('ss-dur').value);
+    A.viva.spd=parseFloat($id('ss-spd').value);
+
+    let pool=[];
+
+    selBooks.forEach(b=>{
+        if(wTxt) b.textQs.forEach(q=>pool.push({
+            type:'text',
+            question:q.q,
+            topic:q.topic,
+            diff:q.diff,
+            book:b.title
+        }));
+        if(wImg) b.imageQs.forEach(iq=>pool.push({
+            type:'image',
+            question:iq.question,
+            topic:iq.topic,
+            diff:'hard',
+            book:b.title,
+            imageUrl:iq.imageUrl,
+            hasImage:iq.hasImage
+        }));
     });
 
-    if (!selectedBooks.length) {
-        alert('Please select at least one book to practice from.');
-        return;
+    if(!pool.length){alert('No questions found for selected options');return;}
+
+    // Shuffle pool
+    pool.sort(()=>Math.random()-.5);
+
+    // Target 150 text + 50 image
+    const txtPool=pool.filter(q=>q.type==='text').slice(0,150);
+    const imgPool=pool.filter(q=>q.type==='image').slice(0,50);
+
+    // Interleave: every 3 text questions, 1 image
+    const combined=[];
+    let ti=0,ii=0;
+    while(ti<txtPool.length||ii<imgPool.length){
+        for(let x=0;x<3&&ti<txtPool.length;x++) combined.push(txtPool[ti++]);
+        if(ii<imgPool.length) combined.push(imgPool[ii++]);
     }
 
-    const wantText  = $id('chk-text').checked;
-    const wantImage = $id('chk-image').checked;
-    if (!wantText && !wantImage) {
-        alert('Select at least one question type.');
-        return;
-    }
+    A.viva.qs=combined;
+    A.viva.ans=[];
+    A.viva.idx=0;
+    A.viva.dur=dur;
+    A.rec.txt='';
 
-    const duration = parseInt($id('stu-duration').value);
-    const diff     = $id('stu-diff').value;
-    const speed    = parseFloat($id('stu-speed').value);
-
-    // Build question pool
-    let pool = [];
-
-    selectedBooks.forEach(book => {
-        if (wantText) {
-            let tq = book.textQuestions;
-            if (diff !== 'mixed') tq = tq.filter(q => q.diff === diff);
-            tq.forEach(q => pool.push({
-                type: 'text',
-                question: q.q,
-                topic: q.topic,
-                diff: q.diff,
-                book: book.title,
-                image: null
-            }));
-        }
-
-        if (wantImage) {
-            book.imageQuestions.forEach(iq => pool.push({
-                type: 'image',
-                question: iq.question,
-                topic: 'Visual Analysis',
-                diff: 'hard',
-                book: book.title,
-                image: iq.image
-            }));
-        }
-    });
-
-    if (!pool.length) {
-        alert('No questions found for selected options. Try different settings or books.');
-        return;
-    }
-
-    // Shuffle
-    pool.sort(() => Math.random() - 0.5);
-
-    // Limit by duration (roughly 4 min per question)
-    const maxQ = Math.max(3, Math.floor(duration / 4));
-    pool = pool.slice(0, maxQ);
-
-    // Init viva state
-    APP.viva.questions = pool;
-    APP.viva.answers   = [];
-    APP.viva.index     = 0;
-    APP.viva.duration  = duration;
-    APP.viva.speed     = speed;
-    APP.speech.transcript = '';
-
-    showPage('pg-viva');
-    renderQuestion();
+    go('pg-viva');
+    showQ();
     startTimer();
 }
 
-// ============================================================
-//  VIVA — QUESTION DISPLAY
-// ============================================================
-function renderQuestion() {
-    const q = APP.viva.questions[APP.viva.index];
-    const total = APP.viva.questions.length;
+/* ══════════════════════════════════════
+   SHOW QUESTION
+══════════════════════════════════════ */
+function showQ(){
+    const q=A.viva.qs[A.viva.idx];
+    const total=A.viva.qs.length;
+    const pct=Math.round(((A.viva.idx+1)/total)*100);
 
     // Progress
-    const pct = Math.round(((APP.viva.index + 1) / total) * 100);
-    $id('viva-progress').style.width = Math.max(pct, 5) + '%';
-    $id('viva-prog-txt').textContent = `${APP.viva.index + 1}/${total}`;
+    $id('v-prog').style.width=Math.max(pct,2)+'%';
+    $id('v-qcnt').textContent=`${A.viva.idx+1}/${total}`;
+    $id('v-qlbl2').textContent=
+        `${q.type==='image'?'🖼️ Image':'📝 Text'} Question ${A.viva.idx+1}`;
+    $id('v-qlbl').textContent=
+        `QUESTION ${A.viva.idx+1} OF ${total}`;
+    $id('v-qtxt').textContent=q.question;
 
-    // Question text
-    $id('viva-question').textContent = q.question;
+    // Image handling
+    const imgWrap=$id('v-img-wrap');
+    const imgEl=$id('v-qimg');
+    const imgLoad=$id('v-img-loading');
+    const imgErr=$id('v-img-err');
 
-    // Image
-    const img = $id('viva-img');
-    if (q.image) {
-        img.src = q.image;
-        img.classList.remove('hidden');
-    } else {
-        img.src = '';
-        img.classList.add('hidden');
+    if(q.type==='image'){
+        imgWrap.classList.remove('hidden');
+        imgEl.classList.add('hidden');
+        imgErr.classList.add('hidden');
+        imgLoad.classList.remove('hidden');
+
+        if(q.imageUrl){
+            const tempImg=new Image();
+            tempImg.onload=()=>{
+                imgEl.src=q.imageUrl;
+                imgEl.classList.remove('hidden');
+                imgLoad.classList.add('hidden');
+                imgErr.classList.add('hidden');
+            };
+            tempImg.onerror=()=>{
+                imgLoad.classList.add('hidden');
+                imgErr.classList.remove('hidden');
+                imgEl.classList.add('hidden');
+            };
+            tempImg.src=q.imageUrl;
+        }else{
+            imgLoad.classList.add('hidden');
+            imgErr.classList.remove('hidden');
+        }
+    }else{
+        imgWrap.classList.add('hidden');
+        imgEl.src='';
     }
 
-    // Badges
-    $id('viva-badge-book').textContent = '📚 ' + q.book;
-    $id('viva-badge-diff').textContent = q.diff.toUpperCase();
-    $id('viva-badge-diff').className = 'badge badge-' + {
-        easy: 'easy', medium: 'med', hard: 'hard', mixed: 'med'
-    }[q.diff] || 'med';
+    // Tags
+    const diffColors={easy:'tag-s',medium:'tag-w',hard:'tag-r'};
+    setH('v-tags',`
+        <span class="tag tag-p">📚 ${q.book}</span>
+        <span class="tag ${diffColors[q.diff]||'tag-w'}">
+            ${q.diff.toUpperCase()}</span>
+        <span class="tag ${q.type==='image'?'tag-i':'tag-g'}">
+            ${q.type==='image'?'🖼️ IMAGE':'📝 TEXT'}</span>
+        <span class="tag tag-p">🏷️ ${q.topic}</span>
+    `);
 
-    const typeBadge = $id('viva-badge-type');
-    if (q.type === 'image') {
-        typeBadge.textContent = '🖼️ Image';
-        typeBadge.classList.remove('hidden');
-    } else {
-        typeBadge.classList.add('hidden');
-    }
+    // Reset answer section
+    $id('eval-area').classList.add('hidden');
+    $id('v-trans').textContent='Your spoken words appear here...';
+    $id('v-trans').classList.remove('live');
+    $id('v-typed').value='';
+    A.rec.txt='';
+    micStop();
+    $id('mic-lbl').textContent='Tap to start recording';
 
-    // Reset answer area
-    $id('eval-section').classList.add('hidden');
-    $id('transcript-box').textContent = 'Your spoken answer will appear here...';
-    $id('transcript-box').classList.remove('live');
-    $id('typed-answer').value = '';
-    APP.speech.transcript = '';
-
-    // Mic reset
-    stopMic();
-    $id('mic-status').textContent = 'Click mic to record your answer';
-
-    // Speak question
-    setTimeout(speakQuestion, 400);
+    setTimeout(speakQ, 500);
 }
 
-// ============================================================
-//  VIVA — SPEECH
-// ============================================================
-function speakQuestion() {
-    const q = APP.viva.questions[APP.viva.index];
+/* ══════════════════════════════════════
+   SPEAK QUESTION
+══════════════════════════════════════ */
+function speakQ(){
+    const q=A.viva.qs[A.viva.idx];
     window.speechSynthesis.cancel();
-
-    const utt = new SpeechSynthesisUtterance(q.question);
-    utt.rate = APP.viva.speed;
-    utt.lang = 'en-US';
-
-    const avatar = $id('viva-avatar');
-    avatar.classList.add('speaking');
-    utt.onend = () => avatar.classList.remove('speaking');
-    utt.onerror = () => avatar.classList.remove('speaking');
-
+    const utt=new SpeechSynthesisUtterance(q.question);
+    utt.rate=A.viva.spd; utt.lang='en-US';
+    const av=$id('v-av');
+    av.classList.add('speak');
+    utt.onend=()=>av.classList.remove('speak');
+    utt.onerror=()=>av.classList.remove('speak');
     window.speechSynthesis.speak(utt);
 }
 
-function toggleMic() {
-    if (!APP.speech.recognition) {
-        alert('Speech recognition not supported in this browser. Please type your answer.');
-        return;
-    }
-
-    if (APP.speech.recording) {
-        stopMic();
-    } else {
-        startMic();
-    }
-}
-
-function startMic() {
-    APP.speech.recording = true;
-    APP.speech.transcript = '';
-    $id('transcript-box').textContent = 'Listening...';
-    $id('btn-mic').classList.add('on');
-    try { APP.speech.recognition.start(); } catch(e) {}
-}
-
-function stopMic() {
-    APP.speech.recording = false;
-    $id('btn-mic').classList.remove('on');
-    try { APP.speech.recognition.stop(); } catch(e) {}
-}
-
-// ============================================================
-//  VIVA — SUBMIT & EVALUATE
-// ============================================================
-function doSubmit() {
-    stopMic();
+/* ══════════════════════════════════════
+   SUBMIT ANSWER
+══════════════════════════════════════ */
+async function doSubmit(){
+    micStop();
     window.speechSynthesis.cancel();
 
-    const spoken = APP.speech.transcript.trim();
-    const typed  = $id('typed-answer').value.trim();
-    const answer = spoken || typed;
+    const spoken=A.rec.txt.trim();
+    const typed=$id('v-typed').value.trim();
+    const answer=spoken||typed;
 
-    if (!answer) {
-        $id('typed-answer').focus();
-        $id('typed-answer').style.borderColor = '#dc3545';
-        setTimeout(() => $id('typed-answer').style.borderColor = '#ddd', 1500);
+    if(!answer){
+        $id('v-typed').style.borderColor='#dc2626';
+        $id('v-typed').focus();
+        setTimeout(()=>$id('v-typed').style.borderColor='',1500);
         return;
     }
 
-    const q    = APP.viva.questions[APP.viva.index];
-    const eval = buildEvaluation(answer, q);
+    $id('btn-sub').disabled=true;
+    $id('eval-area').classList.remove('hidden');
+    setH('eval-body',`
+        <div class="ai-load">
+            <div class="dots">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+            <p style="color:var(--mid);font-size:14px;font-weight:500">
+                AI examiner is evaluating your answer...</p>
+        </div>`);
+    $id('eval-area').scrollIntoView({behavior:'smooth'});
 
-    APP.viva.answers.push({
-        question: q.question,
-        type: q.type,
-        topic: q.topic,
+    const q=A.viva.qs[A.viva.idx];
+    const ev=await evalAnswer(answer, q);
+
+    A.viva.ans.push({
+        question:q.question,
+        type:q.type,
+        topic:q.topic,
+        book:q.book,
         answer,
-        score: eval.score,
-        grade: eval.grade
+        score:ev.score,
+        grade:ev.grade,
+        feedback:ev
     });
 
-    renderEvaluation(eval);
+    renderEval(ev);
+    $id('btn-sub').disabled=false;
 }
 
-function buildEvaluation(answer, question) {
-    const words = answer.trim().split(/\s+/).filter(w => w.length > 0);
-    const wordCount = words.length;
-    const ansLower = answer.toLowerCase();
+/* ══════════════════════════════════════
+   RENDER EVALUATION
+══════════════════════════════════════ */
+function renderEval(ev){
+    const sc=ev.score;
+    const cls=sc>=7?'sh':sc>=5?'sm':'sl2';
+    const emoji=sc>=8.5?'🌟':sc>=7?'✅':sc>=5?'👍':'⚠️';
 
-    let score = 4; // base
-    const strengths = [];
-    const improves  = [];
-    const tips      = [];
+    setH('eval-body',`
+        <div style="display:flex;align-items:center;gap:16px;
+            flex-wrap:wrap;margin-bottom:18px">
+            <div class="score-ring ${cls}">
+                <div class="sn">${sc}</div>
+                <div class="sl">${ev.grade}</div>
+            </div>
+            <div style="flex:1;min-width:200px">
+                <div style="font-size:18px;margin-bottom:6px">${emoji}</div>
+                <p style="font-size:15px;line-height:1.7;color:var(--dark)">
+                    ${ev.summary}</p>
+            </div>
+        </div>
 
-    // --- LENGTH SCORING ---
-    if (wordCount >= 250) { score += 3; strengths.push('Comprehensive and in-depth explanation'); }
-    else if (wordCount >= 150) { score += 2.5; strengths.push('Good length with solid detail'); }
-    else if (wordCount >= 80)  { score += 1.5; strengths.push('Adequate length'); }
-    else if (wordCount >= 40)  { score += 0.5; improves.push('Expand your answer with more detail'); }
-    else { improves.push('Answer is too brief — aim for at least 80 words'); }
+        <h4 style="color:var(--s);margin-bottom:8px;font-size:14px;
+            text-transform:uppercase;letter-spacing:.5px">
+            ✅ Strengths</h4>
+        ${ev.strengths.map(s=>`
+            <div class="fb fb-s">✅ ${s}</div>`).join('')}
 
-    // --- TOPIC RELEVANCE ---
-    const topicWords = question.topic.toLowerCase().split(/\W+/).filter(w => w.length > 3);
-    const matched = topicWords.filter(tw => ansLower.includes(tw));
-    const relevance = topicWords.length > 0 ? matched.length / topicWords.length : 0;
+        <h4 style="color:var(--w);margin:14px 0 8px;font-size:14px;
+            text-transform:uppercase;letter-spacing:.5px">
+            💡 What Was Missing</h4>
+        ${ev.improvements.map(i=>`
+            <div class="fb fb-i">💡 ${i}</div>`).join('')}
 
-    if (relevance >= 0.8) { score += 2; strengths.push('Highly relevant to the question'); }
-    else if (relevance >= 0.5) { score += 1; }
-    else { improves.push('Focus more directly on the question topic'); }
+        <h4 style="color:#166534;margin:14px 0 8px;font-size:14px;
+            text-transform:uppercase;letter-spacing:.5px">
+            📖 Model Answer</h4>
+        <div class="fb-correct">${ev.modelAnswer}</div>
 
-    // --- MEDICAL TERMINOLOGY ---
-    const medTerms = [
-        'pathophysiology','etiology','clinical','diagnosis','treatment','management',
-        'prognosis','symptoms','signs','investigation','complication','mechanism',
-        'pharmacology','anatomy','physiology','histology','epidemiology','incidence',
-        'prevalence','mortality','morbidity','prophylaxis','differential','syndrome',
-        'pathology','therapeutic','contraindication','indication','manifestation'
-    ];
-    const termCount = medTerms.filter(t => ansLower.includes(t)).length;
-
-    if (termCount >= 5) { score += 1.5; strengths.push('Excellent use of medical terminology'); }
-    else if (termCount >= 3) { score += 1; strengths.push('Good medical vocabulary'); }
-    else if (termCount === 0) { improves.push('Incorporate proper medical terminology'); }
-
-    // --- STRUCTURE ---
-    const hasSentences = answer.split(/[.!?]/).filter(s => s.trim().length > 15).length;
-    if (hasSentences >= 5) { score += 0.5; strengths.push('Well-structured answer'); }
-
-    // --- IMAGE QUESTION BONUS ---
-    if (question.type === 'image') {
-        const imageWords = ['graph','chart','shows','indicates','axis','trend','increase','decrease',
-                           'label','figure','diagram','arrow','represent','observe','structure'];
-        const imgMatches = imageWords.filter(w => ansLower.includes(w)).length;
-        if (imgMatches >= 3) { score += 1; strengths.push('Good visual interpretation skills'); }
-        else { improves.push('Describe what you see — mention axes, trends, labeled structures'); }
-    }
-
-    // --- CLAMP SCORE ---
-    score = Math.min(10, Math.max(0, score));
-    const scoreRounded = parseFloat(score.toFixed(1));
-
-    // --- GRADE ---
-    let grade;
-    if (scoreRounded >= 9)      grade = 'A+';
-    else if (scoreRounded >= 8) grade = 'A';
-    else if (scoreRounded >= 7) grade = 'B+';
-    else if (scoreRounded >= 6) grade = 'B';
-    else if (scoreRounded >= 5) grade = 'C';
-    else                        grade = 'D';
-
-    // --- FEEDBACK MESSAGE ---
-    let feedback;
-    if (scoreRounded >= 8.5) feedback = '🌟 Outstanding! Excellent depth and clarity. Well done!';
-    else if (scoreRounded >= 7) feedback = '✅ Very good answer. Minor points can be improved.';
-    else if (scoreRounded >= 5.5) feedback = '👍 Decent attempt. Review the improvement suggestions.';
-    else if (scoreRounded >= 4) feedback = '⚠️ Needs improvement. Study the topic more thoroughly.';
-    else feedback = '❌ Insufficient answer. Please review this topic before your exam.';
-
-    // --- TIPS ---
-    tips.push(...generateStudyTips(question.topic, question.type));
-
-    return { score: scoreRounded, grade, feedback, strengths, improves, tips };
+        <h4 style="color:var(--p);margin:14px 0 8px;font-size:14px;
+            text-transform:uppercase;letter-spacing:.5px">
+            🎓 Study Tip</h4>
+        <div class="fb fb-t">${ev.studyTip}</div>
+    `);
 }
 
-function generateStudyTips(topic, type) {
-    const tips = [];
-    const t = topic.toLowerCase();
-
-    if (t.includes('anatomy') || t.includes('structure'))
-        tips.push('Draw and label diagrams — visual memory aids retention');
-    if (t.includes('pharmacology') || t.includes('drug'))
-        tips.push('Remember drug classes, MOA, side effects using mnemonics');
-    if (t.includes('pathology') || t.includes('disease'))
-        tips.push('Link pathophysiology to clinical features for better recall');
-    if (t.includes('diagnosis') || t.includes('investigation'))
-        tips.push('Practice clinical reasoning with case-based questions');
-    if (type === 'image')
-        tips.push('Practice interpreting ECGs, X-rays, pathology slides regularly');
-
-    if (!tips.length)
-        tips.push(`Review ${topic} in your textbook and practice MCQs on this topic`);
-
-    return tips;
+/* ══════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════ */
+function doNext(){
+    A.viva.idx++;
+    if(A.viva.idx>=A.viva.qs.length){endViva();return;}
+    showQ();
+    window.scrollTo({top:0,behavior:'smooth'});
 }
 
-function renderEvaluation(ev) {
-    const s = ev.score;
-    const badge = $id('eval-score');
-    badge.textContent = `${s}/10 (${ev.grade})`;
-    badge.className = 'score-badge' + (s >= 7 ? '' : s >= 5 ? ' mid' : ' low');
-
-    $id('eval-feedback').textContent = ev.feedback;
-
-    setHTML('eval-strengths',
-        ev.strengths.map(x => `<div class="strength-item">✅ ${x}</div>`).join('') ||
-        '<div class="strength-item">✅ Attempted the question</div>');
-
-    setHTML('eval-improves',
-        ev.improves.map(x => `<div class="improve-item">💡 ${x}</div>`).join('') ||
-        '<div class="improve-item">💡 Keep practising for even better results</div>');
-
-    setHTML('eval-tips',
-        ev.tips.map(x => `<div class="suggest-item">📖 ${x}</div>`).join(''));
-
-    $id('eval-section').classList.remove('hidden');
-
-    // Scroll to evaluation
-    $id('eval-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-// ============================================================
-//  VIVA — NAVIGATION
-// ============================================================
-function doNext() {
-    APP.viva.index++;
-    if (APP.viva.index >= APP.viva.questions.length) {
-        doEndViva();
-    } else {
-        renderQuestion();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-}
-
-function doSkip() {
-    if (!confirm('Skip this question?')) return;
-    APP.viva.answers.push({
-        question: APP.viva.questions[APP.viva.index].question,
-        type: APP.viva.questions[APP.viva.index].type,
-        answer: '',
-        score: 0,
-        skipped: true
+function doSkip(){
+    if(!confirm('Skip this question? (0 marks)')) return;
+    A.viva.ans.push({
+        question:A.viva.qs[A.viva.idx].question,
+        type:A.viva.qs[A.viva.idx].type,
+        topic:A.viva.qs[A.viva.idx].topic,
+        book:A.viva.qs[A.viva.idx].book,
+        answer:'',score:0,grade:'F',skipped:true
     });
     doNext();
 }
 
-// ============================================================
-//  VIVA — TIMER
-// ============================================================
-function startTimer() {
-    clearInterval(APP.viva.timerRef);
-    APP.viva.timeLeft = APP.viva.duration * 60;
-
-    APP.viva.timerRef = setInterval(() => {
-        APP.viva.timeLeft--;
-        const m = Math.floor(APP.viva.timeLeft / 60);
-        const s = APP.viva.timeLeft % 60;
-        $id('viva-timer').textContent =
-            String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
-
-        if (APP.viva.timeLeft <= 300)
-            $id('viva-timer').classList.add('urgent');
-
-        if (APP.viva.timeLeft <= 0) {
-            clearInterval(APP.viva.timerRef);
-            doEndViva();
-        }
-    }, 1000);
+/* ══════════════════════════════════════
+   TIMER
+══════════════════════════════════════ */
+function startTimer(){
+    clearInterval(A.viva.tRef);
+    A.viva.tLeft=A.viva.dur*60;
+    A.viva.tRef=setInterval(()=>{
+        A.viva.tLeft--;
+        const m=Math.floor(A.viva.tLeft/60);
+        const s=A.viva.tLeft%60;
+        $id('v-timer').textContent=
+            String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+        $id('v-timer').classList.toggle('red',A.viva.tLeft<=300);
+        if(A.viva.tLeft<=0){clearInterval(A.viva.tRef);endViva();}
+    },1000);
 }
 
-// ============================================================
-//  VIVA — END & SUMMARY
-// ============================================================
-function doEndViva() {
-    clearInterval(APP.viva.timerRef);
+/* ══════════════════════════════════════
+   END VIVA
+══════════════════════════════════════ */
+function endViva(){
+    clearInterval(A.viva.tRef);
     window.speechSynthesis.cancel();
-    stopMic();
+    micStop();
 
-    const valid = APP.viva.answers.filter(a => !a.skipped);
-    const skipped = APP.viva.answers.filter(a => a.skipped).length;
-    const total = APP.viva.questions.length;
+    const valid=A.viva.ans.filter(a=>!a.skipped);
+    const skipped=A.viva.ans.filter(a=>a.skipped).length;
+    const total=A.viva.qs.length;
+    const avgScore=valid.length
+        ?parseFloat((valid.reduce((a,b)=>a+b.score,0)/valid.length).toFixed(1)):0;
+    const grade=calcGrade(avgScore);
 
-    const avgScore = valid.length
-        ? parseFloat((valid.reduce((a, b) => a + b.score, 0) / valid.length).toFixed(1))
-        : 0;
-
-    let grade;
-    if (avgScore >= 9)      grade = 'A+';
-    else if (avgScore >= 8) grade = 'A';
-    else if (avgScore >= 7) grade = 'B+';
-    else if (avgScore >= 6) grade = 'B';
-    else if (avgScore >= 5) grade = 'C';
-    else                    grade = 'D';
-
-    const session = {
-        username: APP.user.username,
-        date: new Date().toISOString(),
-        score: avgScore,
-        grade,
-        total,
-        answered: valid.length,
-        skipped,
-        books: APP.viva.questions.map(q => q.book).filter((v, i, a) => a.indexOf(v) === i),
-        answers: APP.viva.answers
+    const sess={
+        username:A.user.u,
+        date:new Date().toISOString(),
+        score:avgScore, grade, total,
+        answered:valid.length, skipped,
+        books:[...new Set(A.viva.qs.map(q=>q.book))],
+        answers:A.viva.ans
     };
 
-    APP.sessions.push(session);
-    safeSave('viva_sessions', APP.sessions);
-    APP.lastSession = session;
+    A.sessions.push(sess);
+    lsSave('mv_sess',A.sessions);
+    A.lastSess=sess;
 
-    showSummary(session);
+    showSummary(sess);
 }
 
-function showSummary(s) {
-    const pct = s.total > 0 ? Math.round((s.answered / s.total) * 100) : 0;
+/* ══════════════════════════════════════
+   SUMMARY
+══════════════════════════════════════ */
+function showSummary(s){
+    const msg=s.score>=8.5?'🌟 Outstanding! You are fully exam-ready.':
+        s.score>=7?'✅ Great performance! Minor areas need work.':
+        s.score>=5.5?'👍 Fair attempt. Focused revision needed.':
+        '📚 Significant revision required. Review all topics.';
 
-    let msg;
-    if (s.score >= 8.5)      msg = '🌟 Outstanding performance! You are exam-ready.';
-    else if (s.score >= 7)   msg = '✅ Good work! Focus on your weaker areas.';
-    else if (s.score >= 5.5) msg = '👍 Fair performance. Keep studying and practising.';
-    else                     msg = '📚 Needs improvement. Review your materials thoroughly.';
+    const weakTopics=[...new Set(
+        s.answers.filter(a=>!a.skipped&&a.score<6).map(a=>a.topic)
+    )].slice(0,6);
 
-    const html = `
-        <div class="grid-3">
-            <div class="stat-box"><div class="num">${s.score}</div><div class="lbl">Score /10</div></div>
-            <div class="stat-box"><div class="num">${s.grade}</div><div class="lbl">Grade</div></div>
-            <div class="stat-box"><div class="num">${s.answered}/${s.total}</div><div class="lbl">Answered</div></div>
+    const strongTopics=[...new Set(
+        s.answers.filter(a=>!a.skipped&&a.score>=8).map(a=>a.topic)
+    )].slice(0,4);
+
+    setH('modal-body',`
+        <div class="stats" style="margin-bottom:16px">
+            <div class="stat"><div class="n">${s.score}</div><div class="l">Score /10</div></div>
+            <div class="stat"><div class="n">${s.grade}</div><div class="l">Grade</div></div>
+            <div class="stat"><div class="n">${s.answered}/${s.total}</div>
+                <div class="l">Answered</div></div>
         </div>
-        <div class="card">
+        <div class="card" style="margin:12px 0">
             <h3>🎯 Verdict</h3>
-            <p style="font-size:16px; line-height:1.7;">${msg}</p>
+            <p style="font-size:15px;line-height:1.75">${msg}</p>
         </div>
-        <div class="card">
-            <h3>📋 Details</h3>
-            <p>📚 Books: <b>${s.books.join(', ')}</b></p>
-            <p>⏭️ Skipped: <b>${s.skipped}</b></p>
-            <p>📅 Date: <b>${new Date(s.date).toLocaleString()}</b></p>
-        </div>
-    `;
+        ${strongTopics.length?`
+        <div class="card" style="margin:12px 0">
+            <h3>💪 Strong Areas</h3>
+            ${strongTopics.map(t=>
+                `<div class="fb fb-s">✅ ${t}</div>`).join('')}
+        </div>`:''}
+        ${weakTopics.length?`
+        <div class="card" style="margin:12px 0">
+            <h3>⚠️ Topics to Review</h3>
+            ${weakTopics.map(t=>
+                `<div class="fb fb-i">📌 ${t}</div>`).join('')}
+        </div>`:''}
+        <div class="card" style="margin:12px 0">
+            <h3>📋 Session Details</h3>
+            <p style="font-size:14px;line-height:2;color:var(--dark)">
+                📚 <strong>Books:</strong> ${s.books.join(', ')}<br>
+                ⏭️ <strong>Skipped:</strong> ${s.skipped}<br>
+                📅 <strong>Date:</strong> ${new Date(s.date).toLocaleString()}
+            </p>
+        </div>`);
 
-    setHTML('modal-summary-content', html);
-    showModal('modal-summary');
+    $id('modal').classList.add('on');
 }
 
-// ============================================================
-//  DOWNLOAD REPORT
-// ============================================================
-function doDownload() {
-    const s = APP.lastSession;
-    if (!s) return;
+/* ══════════════════════════════════════
+   DOWNLOAD REPORT
+══════════════════════════════════════ */
+function doDownload(){
+    const s=A.lastSess;
+    if(!s) return;
 
-    let txt = 'MEDICAL VIVA EXAMINATION REPORT\n';
-    txt += '='.repeat(50) + '\n\n';
-    txt += `Student   : ${s.username}\n`;
-    txt += `Date      : ${new Date(s.date).toLocaleString()}\n`;
-    txt += `Score     : ${s.score}/10\n`;
-    txt += `Grade     : ${s.grade}\n`;
-    txt += `Answered  : ${s.answered}/${s.total}\n`;
-    txt += `Skipped   : ${s.skipped}\n`;
-    txt += `Books     : ${s.books.join(', ')}\n\n`;
-    txt += '='.repeat(50) + '\n\n';
-    txt += 'QUESTION-WISE BREAKDOWN\n\n';
+    let txt='MEDVIVA AI — EXAMINATION REPORT\n';
+    txt+='═'.repeat(55)+'\n\n';
+    txt+=`Student     : ${s.username}\n`;
+    txt+=`Date        : ${new Date(s.date).toLocaleString()}\n`;
+    txt+=`Score       : ${s.score}/10\n`;
+    txt+=`Grade       : ${s.grade}\n`;
+    txt+=`Answered    : ${s.answered}/${s.total}\n`;
+    txt+=`Skipped     : ${s.skipped}\n`;
+    txt+=`Books       : ${s.books.join(', ')}\n\n`;
+    txt+='═'.repeat(55)+'\n\n';
+    txt+='QUESTION-BY-QUESTION BREAKDOWN\n\n';
 
-    s.answers.forEach((a, i) => {
-        txt += `Q${i+1}: ${a.question}\n`;
-        if (a.skipped) txt += '   [SKIPPED]\n\n';
-        else {
-            txt += `   Answer: ${a.answer.substring(0, 200)}${a.answer.length > 200 ? '...' : ''}\n`;
-            txt += `   Score : ${a.score}/10\n\n`;
+    s.answers.forEach((a,i)=>{
+        txt+=`Q${i+1} [${(a.type||'TEXT').toUpperCase()}] — ${a.topic}\n`;
+        txt+=`Book     : ${a.book}\n`;
+        txt+=`Question : ${a.question}\n`;
+        if(a.skipped){
+            txt+='Result   : SKIPPED\n\n';
+        }else{
+            txt+=`Answer   : ${(a.answer||'').substring(0,400)}\n`;
+            txt+=`Score    : ${a.score}/10 (${a.grade})\n`;
+            if(a.feedback?.modelAnswer)
+                txt+=`Model Ans: ${a.feedback.modelAnswer}\n`;
+            if(a.feedback?.studyTip)
+                txt+=`Study Tip: ${a.feedback.studyTip}\n`;
         }
+        txt+='\n';
     });
 
-    const blob = new Blob([txt], { type: 'text/plain' });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href = url;
-    a.download = `viva-report-${s.username}-${Date.now()}.txt`;
+    const blob=new Blob([txt],{type:'text/plain'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download=`MedViva-${s.username}-${Date.now()}.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 }
 
-// deleteBook — called from inline onclick in admin panel
-window.deleteBook = deleteBook;
+/* ══════════════════════════════════════
+   UTILITIES
+══════════════════════════════════════ */
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 </script>
 </body>
 </html>
