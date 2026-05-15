@@ -4,13 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#667eea">
-    <meta name="description" content="AI-Powered Medical Viva Examination Practice System">
-    <title>AI Medical Viva Examiner - Practice Platform</title>
+    <title>AI Medical Viva Examiner</title>
     
-    <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👨‍⚕️</text></svg>">
-    
-    <!-- Manifest for PWA -->
     <link rel="manifest" href="manifest.json">
     
     <style>
@@ -21,21 +17,20 @@
         }
 
         :root {
-            --primary-color: #667eea;
-            --secondary-color: #764ba2;
-            --success-color: #28a745;
-            --warning-color: #ffc107;
-            --danger-color: #dc3545;
-            --light-bg: #f8f9fa;
-            --border-radius: 15px;
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --light: #f8f9fa;
+            --dark: #333;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             min-height: 100vh;
             padding: 10px;
-            line-height: 1.6;
         }
 
         .container {
@@ -43,79 +38,64 @@
             margin: 0 auto;
             background: white;
             border-radius: 20px;
-            padding: 20px;
+            padding: 30px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            animation: fadeIn 0.5s ease-in;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
         }
 
         h1 {
-            color: var(--primary-color);
+            color: var(--primary);
             text-align: center;
             margin-bottom: 20px;
-            font-size: clamp(20px, 5vw, 32px);
+            font-size: 28px;
         }
 
         h2, h3 {
-            color: var(--primary-color);
+            color: var(--primary);
             margin: 20px 0 10px 0;
         }
 
-        .login-page, .admin-page, .student-page, .viva-page {
+        .page {
             display: none;
         }
 
-        .active {
+        .page.active {
             display: block;
-            animation: slideIn 0.3s ease-out;
-        }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-20px); }
-            to { opacity: 1; transform: translateX(0); }
         }
 
         input, textarea, select {
             width: 100%;
-            padding: 15px;
+            padding: 12px;
             margin: 10px 0;
             border: 2px solid #ddd;
-            border-radius: var(--border-radius);
+            border-radius: 10px;
             font-size: 16px;
-            transition: border-color 0.3s;
+            font-family: inherit;
         }
 
         input:focus, textarea:focus, select:focus {
             outline: none;
-            border-color: var(--primary-color);
+            border-color: var(--primary);
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
         }
 
         button {
             width: 100%;
-            padding: 15px;
-            background: var(--primary-color);
+            padding: 14px;
+            background: var(--primary);
             color: white;
             border: none;
-            border-radius: var(--border-radius);
-            font-size: 18px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
             margin: 10px 0;
             transition: all 0.3s;
-            font-weight: 600;
         }
 
         button:hover {
             background: #5568d3;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        button:active {
-            transform: translateY(0);
         }
 
         button:disabled {
@@ -133,15 +113,11 @@
         }
 
         .btn-danger {
-            background: var(--danger-color);
+            background: var(--danger);
         }
 
         .btn-danger:hover {
             background: #c82333;
-        }
-
-        .btn-success {
-            background: var(--success-color);
         }
 
         .btn-small {
@@ -151,28 +127,62 @@
             display: inline-block;
         }
 
-        .professor-avatar {
-            width: 180px;
-            height: 180px;
+        .logout-btn {
+            background: var(--danger);
+            width: auto;
+            padding: 10px 20px;
+            float: right;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: var(--light);
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-box h3 {
+            color: white;
+            font-size: 32px;
+            margin: 0;
+        }
+
+        .stat-box p {
+            margin: 5px 0 0 0;
+            opacity: 0.9;
+        }
+
+        .avatar {
+            width: 150px;
+            height: 150px;
             margin: 20px auto;
             border-radius: 50%;
-            background: var(--light-bg);
+            background: var(--light);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 80px;
+            font-size: 70px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            position: relative;
-            overflow: hidden;
         }
 
-        .professor-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .professor-avatar.speaking {
+        .avatar.speaking {
             animation: speak 0.5s infinite alternate;
         }
 
@@ -182,78 +192,59 @@
         }
 
         .question-box {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            background: linear-gradient(135deg, var(--light) 0%, #e9ecef 100%);
             padding: 25px;
-            border-radius: var(--border-radius);
+            border-radius: 10px;
             margin: 20px 0;
-            border-left: 5px solid var(--primary-color);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        .question-box h3 {
-            margin-top: 0;
+            border-left: 5px solid var(--primary);
         }
 
         .question-text {
             font-size: 18px;
             line-height: 1.8;
-            color: #333;
+            color: var(--dark);
             margin: 15px 0;
         }
 
         .answer-box {
             background: white;
-            border: 2px solid var(--primary-color);
+            border: 2px solid var(--primary);
             padding: 25px;
-            border-radius: var(--border-radius);
+            border-radius: 10px;
             margin: 20px 0;
         }
 
         .score-badge {
             display: inline-block;
             padding: 12px 25px;
-            background: var(--success-color);
+            background: var(--success);
             color: white;
             border-radius: 25px;
             font-size: 20px;
             font-weight: bold;
             margin: 10px 0;
-            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
         }
 
         .score-badge.low {
-            background: var(--danger-color);
+            background: var(--danger);
         }
 
         .score-badge.medium {
-            background: var(--warning-color);
-            color: #333;
-        }
-
-        .feedback {
-            background: #fff3cd;
-            border: 2px solid var(--warning-color);
-            padding: 20px;
-            border-radius: var(--border-radius);
-            margin: 15px 0;
-        }
-
-        .feedback h3 {
-            margin-top: 0;
-            color: #856404;
+            background: var(--warning);
+            color: var(--dark);
         }
 
         .mic-button {
             width: 100px;
             height: 100px;
             border-radius: 50%;
-            background: var(--danger-color);
+            background: var(--danger);
             color: white;
             font-size: 40px;
             margin: 20px auto;
             display: block;
             cursor: pointer;
-            border: 5px solid white;
+            border: none;
             box-shadow: 0 10px 30px rgba(220, 53, 69, 0.4);
             transition: all 0.3s;
         }
@@ -264,21 +255,20 @@
 
         .mic-button.recording {
             animation: pulse 1s infinite;
-            background: #28a745;
+            background: var(--success);
         }
 
         @keyframes pulse {
-            0%, 100% { transform: scale(1); box-shadow: 0 10px 30px rgba(220, 53, 69, 0.4); }
-            50% { transform: scale(1.1); box-shadow: 0 15px 40px rgba(220, 53, 69, 0.6); }
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
 
         .transcript {
             background: #e9ecef;
             padding: 20px;
-            border-radius: var(--border-radius);
-            min-height: 120px;
+            border-radius: 10px;
+            min-height: 100px;
             margin: 15px 0;
-            font-style: italic;
             border: 2px dashed #adb5bd;
             line-height: 1.8;
             max-height: 300px;
@@ -287,66 +277,27 @@
         }
 
         .transcript.active {
-            border-color: var(--success-color);
+            border-color: var(--success);
             background: #d4edda;
         }
 
         .timer {
             font-size: 32px;
             text-align: center;
-            color: var(--primary-color);
+            color: var(--primary);
             font-weight: bold;
             margin: 20px 0;
             font-family: 'Courier New', monospace;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
         }
 
         .timer.warning {
-            color: var(--danger-color);
+            color: var(--danger);
             animation: blink 1s infinite;
         }
 
         @keyframes blink {
             0%, 50%, 100% { opacity: 1; }
             25%, 75% { opacity: 0.5; }
-        }
-
-        .book-list {
-            list-style: none;
-            padding: 0;
-        }
-
-        .book-item {
-            background: var(--light-bg);
-            padding: 20px;
-            margin: 15px 0;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            transition: all 0.3s;
-            border: 2px solid transparent;
-        }
-
-        .book-item:hover {
-            background: #e9ecef;
-            transform: translateX(5px);
-            border-color: var(--primary-color);
-        }
-
-        .book-item.selected {
-            background: #d4edda;
-            border-color: var(--success-color);
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        .logout-btn {
-            background: var(--danger-color);
-            width: auto;
-            padding: 10px 20px;
-            float: right;
-            margin-bottom: 20px;
         }
 
         .progress-bar {
@@ -356,93 +307,49 @@
             border-radius: 20px;
             overflow: hidden;
             margin: 20px 0;
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
         }
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
             transition: width 0.5s ease;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 14px;
         }
 
-        .card {
-            background: white;
-            border-radius: var(--border-radius);
+        .book-item {
+            background: var(--light);
             padding: 20px;
-            margin: 15px 0;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            border: 1px solid #e9ecef;
+            margin: 10px 0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
         }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
+        .book-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+            border-color: var(--primary);
         }
 
-        .stat-card {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            color: white;
-            padding: 20px;
-            border-radius: var(--border-radius);
-            text-align: center;
-        }
-
-        .stat-card h3 {
-            color: white;
-            margin: 0;
-            font-size: 36px;
-        }
-
-        .stat-card p {
-            margin: 10px 0 0 0;
-            opacity: 0.9;
-        }
-
-        canvas {
-            max-width: 100%;
-            height: auto;
-            margin: 20px 0;
-            border-radius: var(--border-radius);
-            background: white;
-        }
-
-        .alert {
-            padding: 15px 20px;
-            border-radius: var(--border-radius);
-            margin: 15px 0;
-            border-left: 5px solid;
-        }
-
-        .alert-success {
+        .book-item.selected {
             background: #d4edda;
-            border-color: var(--success-color);
-            color: #155724;
+            border-color: var(--success);
         }
 
-        .alert-danger {
-            background: #f8d7da;
-            border-color: var(--danger-color);
-            color: #721c24;
-        }
-
-        .alert-warning {
-            background: #fff3cd;
-            border-color: var(--warning-color);
-            color: #856404;
+        .hidden {
+            display: none !important;
         }
 
         .badge {
             display: inline-block;
             padding: 5px 12px;
-            background: var(--primary-color);
+            background: var(--primary);
             color: white;
             border-radius: 12px;
             font-size: 12px;
@@ -450,21 +357,19 @@
             margin: 0 5px;
         }
 
-        .topic-tag {
-            display: inline-block;
-            padding: 8px 15px;
-            background: #e9ecef;
-            border-radius: 20px;
-            margin: 5px;
-            font-size: 14px;
-            color: #495057;
+        .feedback {
+            background: #fff3cd;
+            border: 2px solid var(--warning);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
         }
 
         .strength-item {
             padding: 10px;
             margin: 8px 0;
             background: #d4edda;
-            border-left: 4px solid var(--success-color);
+            border-left: 4px solid var(--success);
             border-radius: 5px;
         }
 
@@ -472,7 +377,7 @@
             padding: 10px;
             margin: 8px 0;
             background: #fff3cd;
-            border-left: 4px solid var(--warning-color);
+            border-left: 4px solid var(--warning);
             border-radius: 5px;
         }
 
@@ -503,40 +408,67 @@
             overflow-y: auto;
         }
 
-        .voice-animation {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 5px;
-            margin: 10px 0;
+        .loading {
+            text-align: center;
+            padding: 40px;
         }
 
-        .voice-bar {
-            width: 4px;
-            height: 20px;
-            background: var(--success-color);
-            border-radius: 2px;
-            animation: voiceWave 1s ease-in-out infinite;
+        .loading::after {
+            content: "Processing...";
+            display: block;
+            margin-top: 10px;
         }
 
-        .voice-bar:nth-child(2) { animation-delay: 0.1s; }
-        .voice-bar:nth-child(3) { animation-delay: 0.2s; }
-        .voice-bar:nth-child(4) { animation-delay: 0.3s; }
-        .voice-bar:nth-child(5) { animation-delay: 0.4s; }
-
-        @keyframes voiceWave {
-            0%, 100% { height: 20px; }
-            50% { height: 40px; }
-        }
-
-        .security-badge {
-            background: #d4edda;
-            border: 1px solid var(--success-color);
-            color: #155724;
-            padding: 10px 15px;
+        .alert {
+            padding: 15px 20px;
             border-radius: 10px;
+            margin: 15px 0;
+            border-left: 5px solid;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border-color: var(--success);
+            color: #155724;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            border-color: var(--danger);
+            color: #721c24;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border-color: var(--warning);
+            color: #856404;
+        }
+
+        .topic-importance {
+            display: flex;
+            align-items: center;
             margin: 10px 0;
-            font-size: 14px;
+        }
+
+        .topic-bar {
+            flex-grow: 1;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            margin: 0 10px;
+            overflow: hidden;
+        }
+
+        .topic-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            transition: width 0.3s;
+        }
+
+        .topic-label {
+            min-width: 100px;
+            font-size: 12px;
+            font-weight: 600;
         }
 
         @media (max-width: 768px) {
@@ -545,13 +477,13 @@
             }
 
             h1 {
-                font-size: 24px;
+                font-size: 20px;
             }
 
-            .professor-avatar {
-                width: 120px;
-                height: 120px;
-                font-size: 60px;
+            .avatar {
+                width: 100px;
+                height: 100px;
+                font-size: 50px;
             }
 
             .mic-button {
@@ -568,1577 +500,906 @@
 </head>
 <body>
     <div class="container">
-        
+
         <!-- LOGIN PAGE -->
-        <div class="login-page active" id="loginPage">
-            <h1>🎓 AI Medical Viva Examiner</h1>
+        <div class="page active" id="loginPage">
+            <h1>🎓 Medical Viva Examiner</h1>
             <div style="text-align: center; margin: 30px 0;">
-                <div class="professor-avatar">👨‍⚕️</div>
-                <h2 style="color: var(--primary-color);">Your Personal Medical Viva Coach</h2>
-                <p style="color: #666; margin-top: 10px;">Practice viva examinations with voice recognition</p>
+                <div class="avatar">👨‍⚕️</div>
+                <p style="color: #666; font-size: 18px;">AI-Powered Viva Practice Platform</p>
             </div>
 
-            <div class="security-badge">
-                🔒 Secure - No API Keys Exposed - Browser-Based Only
-            </div>
-
-            <div id="lockoutWarning" class="alert alert-danger hidden"></div>
+            <div id="lockoutAlert" class="alert alert-danger hidden"></div>
 
             <input 
                 type="text" 
-                id="loginUsername" 
-                placeholder="👤 Username" 
-                autocomplete="username"
+                id="username" 
+                placeholder="Username"
                 onkeypress="if(event.key==='Enter') login()">
             <input 
                 type="password" 
-                id="loginPassword" 
-                placeholder="🔒 Password" 
-                autocomplete="current-password"
+                id="password" 
+                placeholder="Password"
                 onkeypress="if(event.key==='Enter') login()">
-            <button onclick="login()" id="loginBtn">🚀 Login</button>
-            
-            <div class="card" style="margin-top: 20px; background: #f8f9fa;">
-                <h3 style="text-align: center; color: #666; font-size: 16px;">Demo Credentials</h3>
-                <p style="text-align: center; color: #666; margin: 10px 0;">
-                    <strong>Admin:</strong> admin / admin123<br>
-                    <strong>Student:</strong> student / student123
-                </p>
-            </div>
+            <button onclick="login()" id="loginBtn">Login</button>
 
-            <div class="card" style="margin-top: 20px;">
-                <h3 style="font-size: 18px;">✨ Features</h3>
-                <ul style="margin: 15px 0; padding-left: 20px; color: #666;">
-                    <li>🎙️ Voice recognition for answers (UNLIMITED)</li>
-                    <li>🗣️ Natural text-to-speech professor</li>
-                    <li>📊 Detailed performance analytics</li>
-                    <li>📚 Multiple book support</li>
-                    <li>⏱️ Timed viva sessions</li>
-                    <li>💯 Intelligent grading system</li>
-                    <li>🔒 Secure - No API Key Exposure</li>
-                </ul>
+            <div style="text-align: center; margin-top: 20px; color: #666;">
+                <p>Secure • No Tracking • No Demo Credentials</p>
             </div>
         </div>
 
         <!-- ADMIN PAGE -->
-        <div class="admin-page" id="adminPage">
-            <button class="logout-btn" onclick="logout()">🚪 Logout</button>
-            <h1>📚 Admin Control Panel</h1>
-            
-            <!-- Admin Stats -->
+        <div class="page" id="adminPage">
+            <button class="logout-btn" onclick="logout()">Logout</button>
+            <h1>📊 Admin Panel</h1>
+
             <div class="stats-grid">
-                <div class="stat-card">
-                    <h3 id="adminBooksCount">0</h3>
-                    <p>Books Uploaded</p>
+                <div class="stat-box">
+                    <h3 id="bookCount">0</h3>
+                    <p>Books</p>
                 </div>
-                <div class="stat-card">
-                    <h3 id="adminStudentsCount">0</h3>
-                    <p>Total Students</p>
+                <div class="stat-box">
+                    <h3 id="studentCount">0</h3>
+                    <p>Students</p>
                 </div>
-                <div class="stat-card">
-                    <h3 id="adminSessionsCount">0</h3>
-                    <p>Total Sessions</p>
+                <div class="stat-box">
+                    <h3 id="sessionCount">0</h3>
+                    <p>Sessions</p>
                 </div>
             </div>
 
-            <!-- Security Info -->
-            <div class="security-badge">
-                ✅ 100% Browser-Based - No Servers - No API Keys - Completely Safe
-            </div>
-
-            <!-- Upload Book Section -->
+            <!-- Upload PDF -->
             <div class="card">
-                <h3>📤 Upload Medical Book/Notes</h3>
-                <p style="color: #666; font-size: 14px; margin-bottom: 15px;">
-                    ⚠️ IMPORTANT: Upload ONLY your own educational notes or summarized content.
-                    Do NOT upload copyrighted textbooks.
-                </p>
-                <input 
-                    type="text" 
-                    id="bookTitle" 
-                    placeholder="📖 Book Title (e.g., Anatomy Notes - Chapter 1)">
-                <input 
-                    type="text" 
-                    id="bookSubject" 
-                    placeholder="🏥 Subject (e.g., Anatomy, Physiology)">
+                <h3>📤 Upload Medical Book (PDF)</h3>
+                <input type="file" id="pdfFile" accept=".pdf" placeholder="Select PDF file">
+                <input type="text" id="bookTitle" placeholder="Book Title (Auto-filled from PDF)">
+                <input type="text" id="bookSubject" placeholder="Subject">
                 <select id="bookDifficulty">
                     <option value="basic">Basic Level</option>
                     <option value="intermediate">Intermediate Level</option>
                     <option value="advanced">Advanced Level</option>
                 </select>
-                <textarea 
-                    id="bookContent" 
-                    rows="12" 
-                    placeholder="📝 Paste your educational content/notes here...
-
-Example:
-Chapter 1: Skeletal System
-The skeletal system provides structural support...
-Key concepts: Bones, Cartilage, Joints...
-
-Chapter 2: Muscle System
-Muscles contract to produce movement...
-Types: Skeletal, Smooth, Cardiac..."></textarea>
-                <button onclick="uploadBook()">📤 Upload Book</button>
+                <button onclick="uploadPDF()" id="uploadBtn">📥 Upload & Extract</button>
+                <div id="uploadStatus"></div>
             </div>
 
-            <!-- Uploaded Books List -->
+            <!-- Books List -->
             <div class="card">
                 <h3>📚 Uploaded Books</h3>
-                <ul class="book-list" id="adminBookList">
-                    <li style="text-align: center; color: #666; padding: 20px;">No books uploaded yet</li>
-                </ul>
+                <div id="booksList"></div>
             </div>
 
-            <!-- Student Management -->
+            <!-- Add Student -->
             <div class="card">
-                <h3>👥 Student Management</h3>
-                <input 
-                    type="text" 
-                    id="newStudentUsername" 
-                    placeholder="👤 Student Username">
-                <input 
-                    type="password" 
-                    id="newStudentPassword" 
-                    placeholder="🔒 Student Password">
-                <input 
-                    type="text" 
-                    id="newStudentEmail" 
-                    placeholder="📧 Email (optional)">
-                <button onclick="addStudent()">➕ Add Student</button>
+                <h3>👥 Add Student</h3>
+                <input type="text" id="studentUsername" placeholder="Username">
+                <input type="password" id="studentPassword" placeholder="Password">
+                <input type="email" id="studentEmail" placeholder="Email (optional)">
+                <button onclick="addStudent()">Add Student</button>
+            </div>
 
-                <div id="studentList" style="margin-top: 20px;"></div>
+            <!-- Students List -->
+            <div class="card">
+                <h3>📋 Students</h3>
+                <div id="studentsList"></div>
             </div>
 
             <!-- Recent Activity -->
             <div class="card">
-                <h3>📊 Recent Activity</h3>
+                <h3>📊 Recent Sessions</h3>
                 <div id="recentActivity"></div>
             </div>
         </div>
 
         <!-- STUDENT PAGE -->
-        <div class="student-page" id="studentPage">
-            <button class="logout-btn" onclick="logout()">🚪 Logout</button>
-            <h1 id="studentWelcome">🎯 Student Dashboard</h1>
-            
-            <!-- Student Stats -->
+        <div class="page" id="studentPage">
+            <button class="logout-btn" onclick="logout()">Logout</button>
+            <h1 id="studentTitle">Welcome</h1>
+
             <div class="stats-grid">
-                <div class="stat-card">
-                    <h3 id="studentSessionCount">0</h3>
-                    <p>Sessions Completed</p>
+                <div class="stat-box">
+                    <h3 id="mySessions">0</h3>
+                    <p>Sessions Done</p>
                 </div>
-                <div class="stat-card">
-                    <h3 id="studentAvgScore">0</h3>
-                    <p>Average Score</p>
+                <div class="stat-box">
+                    <h3 id="myAvg">-</h3>
+                    <p>Avg Score</p>
                 </div>
-                <div class="stat-card">
-                    <h3 id="studentBestScore">0</h3>
+                <div class="stat-box">
+                    <h3 id="myBest">-</h3>
                     <p>Best Score</p>
                 </div>
             </div>
 
             <!-- Performance Chart -->
             <div class="card">
-                <h3>📈 Your Performance Trend</h3>
-                <canvas id="scoreChart" width="400" height="200"></canvas>
+                <h3>📈 Performance</h3>
+                <canvas id="chart" width="400" height="200"></canvas>
             </div>
 
-            <!-- Book Selection -->
+            <!-- Select Books -->
             <div class="card">
-                <h3>📚 Select Books for Viva Session</h3>
-                <p style="color: #666; margin: 15px 0;">Choose one or more books for your practice session:</p>
-                <ul class="book-list" id="studentBookList">
-                    <li style="text-align: center; color: #666; padding: 20px;">No books available yet. Please contact admin.</li>
-                </ul>
+                <h3>📚 Select Books</h3>
+                <div id="booksList"></div>
             </div>
 
             <!-- Session Settings -->
             <div class="card">
-                <h3>⚙️ Session Configuration</h3>
-                
-                <label style="display: block; margin: 15px 0 5px 0; font-weight: 600;">⏱️ Session Duration:</label>
-                <select id="sessionDuration">
-                    <option value="15">15 Minutes (Quick Practice)</option>
-                    <option value="30">30 Minutes (Standard)</option>
-                    <option value="45" selected>45 Minutes (Recommended)</option>
-                    <option value="60">60 Minutes (Full Session)</option>
+                <h3>⚙️ Session Settings</h3>
+                <label>Duration:</label>
+                <select id="duration">
+                    <option value="15">15 Minutes</option>
+                    <option value="30">30 Minutes</option>
+                    <option value="45" selected>45 Minutes</option>
+                    <option value="60">60 Minutes</option>
                 </select>
 
-                <label style="display: block; margin: 15px 0 5px 0; font-weight: 600;">🎯 Difficulty Level:</label>
-                <select id="sessionDifficulty">
-                    <option value="easy">Easy - Basic Concepts</option>
-                    <option value="medium" selected>Medium - Standard Viva</option>
-                    <option value="hard">Hard - Advanced Questions</option>
+                <label>Difficulty:</label>
+                <select id="difficulty">
+                    <option value="easy">Easy</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="hard">Hard</option>
                 </select>
 
-                <label style="display: block; margin: 15px 0 5px 0; font-weight: 600;">🗣️ Professor Voice Speed:</label>
-                <select id="voiceSpeed">
-                    <option value="0.8">Slow (0.8x)</option>
-                    <option value="0.9" selected>Normal (0.9x)</option>
-                    <option value="1.0">Fast (1.0x)</option>
+                <label>Voice Speed:</label>
+                <select id="speed">
+                    <option value="0.8">Slow</option>
+                    <option value="0.9" selected>Normal</option>
+                    <option value="1.0">Fast</option>
                 </select>
-                
-                <button onclick="startViva()" style="margin-top: 20px; font-size: 20px;">🎬 Start Viva Session</button>
+
+                <button onclick="startViva()" style="font-size: 18px; margin-top: 20px;">🎬 Start Session</button>
             </div>
 
             <!-- Session History -->
             <div class="card">
-                <h3>📜 Your Session History</h3>
-                <div id="sessionHistory"></div>
-                <button onclick="downloadAllResults()" class="btn-secondary">📥 Download All Results</button>
+                <h3>📜 History</h3>
+                <div id="history"></div>
             </div>
         </div>
 
-        <!-- VIVA SESSION PAGE -->
-        <div class="viva-page" id="vivaPage">
-            
-            <!-- Timer & Progress -->
+        <!-- VIVA PAGE -->
+        <div class="page" id="vivaPage">
             <div class="timer" id="timer">45:00</div>
-            
             <div class="progress-bar">
-                <div class="progress-fill" id="progressBar" style="width: 0%;">
-                    <span id="progressText">Question 0/0</span>
+                <div class="progress-fill" id="progress" style="width: 0%;">
+                    <span id="progressText">0/0</span>
                 </div>
             </div>
 
-            <!-- Professor Avatar -->
-            <div class="professor-avatar" id="professorAvatar">👨‍⚕️</div>
-            
-            <!-- Question Box -->
+            <div class="avatar" id="avatar">👨‍⚕️</div>
+
             <div class="question-box">
-                <h3 style="color: var(--primary-color); margin-bottom: 15px;">👨‍⚕️ Professor asks:</h3>
-                <div class="question-text" id="currentQuestion"></div>
+                <h3>Question:</h3>
+                <div class="question-text" id="question"></div>
                 <div style="margin-top: 15px;">
-                    <span class="badge" id="questionTopic"></span>
-                    <span class="badge" id="questionDifficulty" style="background: var(--warning-color);"></span>
+                    <span class="badge" id="topic"></span>
+                    <span class="badge" id="qdifficulty"></span>
                 </div>
-                <button onclick="speakQuestion()" class="btn-small btn-secondary" style="margin-top: 15px;">🔊 Repeat Question</button>
-                <button onclick="skipQuestion()" class="btn-small" style="background: var(--warning-color); margin-top: 15px;">⏭️ Skip (-1 point)</button>
+                <button onclick="repeatQuestion()" class="btn-small btn-secondary">🔊 Repeat</button>
+                <button onclick="skipQuestion()" class="btn-small" style="background: var(--warning); margin-left: 10px;">⏭️ Skip</button>
             </div>
 
-            <!-- Answer Box -->
             <div class="answer-box">
-                <h3 style="color: var(--primary-color); margin-bottom: 15px;">🎤 Your Answer:</h3>
-                
-                <button class="mic-button" id="micButton" onclick="toggleRecording()">🎤</button>
-                
-                <div id="voiceAnimation" class="voice-animation hidden">
-                    <div class="voice-bar"></div>
-                    <div class="voice-bar"></div>
-                    <div class="voice-bar"></div>
-                    <div class="voice-bar"></div>
-                    <div class="voice-bar"></div>
-                </div>
-                
-                <p style="text-align: center; color: #666; margin-bottom: 15px;">
-                    <span id="recordingStatus">Click microphone to start recording</span>
-                </p>
-                
-                <div class="transcript" id="transcript">Your answer will appear here as you speak...</div>
-                
-                <div style="margin-top: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Or type your answer:</label>
-                    <textarea id="manualAnswer" rows="4" placeholder="Type your answer here if voice recognition is not working..."></textarea>
-                </div>
-                
-                <button onclick="submitAnswer()">✅ Submit Answer</button>
-                <p style="text-align: center; color: #999; font-size: 14px; margin-top: 10px;">
-                    Word count: <span id="wordCount">0</span> words
-                </p>
+                <h3>Your Answer:</h3>
+                <button class="mic-button" id="micBtn" onclick="toggleMic()">🎤</button>
+                <p style="text-align: center; color: #666;" id="micStatus">Click to record</p>
+
+                <div class="transcript" id="transcript">Say your answer...</div>
+
+                <textarea id="textAnswer" rows="4" placeholder="Or type your answer..."></textarea>
+
+                <button onclick="submitAnswer()">✅ Submit</button>
             </div>
 
-            <!-- Feedback Section -->
-            <div id="feedbackSection" class="hidden">
+            <!-- Evaluation -->
+            <div id="evalSection" class="hidden">
                 <div class="feedback">
-                    <h3 style="margin-top: 0;">📊 Answer Evaluation</h3>
-                    <div class="score-badge" id="scoreDisplay"></div>
-                    
-                    <div id="detailedFeedback"></div>
-                    
-                    <div style="margin-top: 20px;">
-                        <h4>✅ Strengths:</h4>
-                        <div id="strengthsList"></div>
-                    </div>
-                    
-                    <div style="margin-top: 15px;">
-                        <h4>💡 Areas for Improvement:</h4>
-                        <div id="improvementsList"></div>
-                    </div>
+                    <h3>📊 Evaluation</h3>
+                    <div class="score-badge" id="scoreShow"></div>
+                    <p id="feedback"></p>
 
-                    <div style="margin-top: 15px;">
-                        <h4>📚 Key Points Covered:</h4>
-                        <div id="keyPointsList"></div>
-                    </div>
+                    <h4 style="margin-top: 20px;">✅ Strengths:</h4>
+                    <div id="strengthsList"></div>
+
+                    <h4 style="margin-top: 20px;">💡 Improvements:</h4>
+                    <div id="improvementsList"></div>
                 </div>
-                <button onclick="nextQuestion()" style="margin-top: 15px;">➡️ Next Question</button>
+                <button onclick="nextQuestion()">➡️ Next</button>
             </div>
 
-            <!-- Emergency Controls -->
-            <div style="margin-top: 20px; text-align: center;">
+            <div style="text-align: center; margin-top: 20px;">
                 <button onclick="pauseSession()" class="btn-small btn-secondary">⏸️ Pause</button>
-                <button onclick="endSessionEarly()" class="btn-small btn-danger">🛑 End Session</button>
+                <button onclick="endSessionEarly()" class="btn-small btn-danger" style="margin-left: 10px;">🛑 End</button>
             </div>
         </div>
 
     </div>
 
-    <!-- Modal for Session Summary -->
+    <!-- Summary Modal -->
     <div class="modal" id="summaryModal">
         <div class="modal-content">
-            <h2 style="text-align: center; color: var(--primary-color);">🎉 Session Complete!</h2>
-            <div id="summaryContent"></div>
-            <button onclick="closeSummary()">✅ Close</button>
-            <button onclick="downloadSessionReport()" class="btn-secondary">📥 Download Report</button>
+            <h2 style="text-align: center; color: var(--primary);">🎉 Session Complete!</h2>
+            <div id="summary"></div>
+            <button onclick="closeSummary()">Close</button>
+            <button onclick="downloadReport()" class="btn-secondary">📥 Download</button>
         </div>
     </div>
 
-    <!-- Main Application Script -->
+    <!-- PDF.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
     <script>
-        // ========== GLOBAL VARIABLES ==========
-        
+        // ===== SETUP PDF.JS =====
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        // ===== GLOBAL STATE =====
         let currentUser = null;
         let books = JSON.parse(localStorage.getItem('books') || '[]');
         let users = JSON.parse(localStorage.getItem('users') || JSON.stringify([
-            { 
-                username: 'admin', 
-                password: hashPasswordSync('admin123'), 
-                role: 'admin',
-                email: 'admin@medicalviva.com',
-                createdAt: new Date().toISOString()
-            },
-            { 
-                username: 'student', 
-                password: hashPasswordSync('student123'), 
-                role: 'student',
-                email: 'student@example.com',
-                createdAt: new Date().toISOString()
-            }
+            { username: 'admin', password: hashPass('admin123'), role: 'admin' },
+            { username: 'student', password: hashPass('student123'), role: 'student' }
         ]));
         let sessions = JSON.parse(localStorage.getItem('sessions') || '[]');
         let loginAttempts = JSON.parse(localStorage.getItem('loginAttempts') || '{}');
 
-        const MAX_LOGIN_ATTEMPTS = 5;
-        const LOCKOUT_TIME = 15 * 60 * 1000; // 15 minutes
+        const MAX_ATTEMPTS = 5;
+        const LOCKOUT_TIME = 15 * 60 * 1000;
 
-        // Current viva session data
-        let currentSession = {
+        let viva = {
             questions: [],
             answers: [],
-            currentQuestionIndex: 0,
-            startTime: null,
+            index: 0,
             duration: 45,
-            selectedBooks: [],
+            books: [],
             difficulty: 'medium',
-            isPaused: false,
-            pauseTime: 0
+            speed: 0.9
         };
 
-        // Speech recognition
         let recognition = null;
         let isRecording = false;
-        let currentTranscript = '';
-        let synthesis = window.speechSynthesis;
-
-        // Timer
+        let transcript = '';
         let timerInterval = null;
-        let remainingSeconds = 0;
+        let timeLeft = 0;
 
-        // ========== INITIALIZATION ==========
-        
-        window.onload = function() {
-            console.log('✅ AI Medical Viva Examiner - Loaded Successfully!');
-            initializeApp();
+        // ===== INIT =====
+        window.onload = () => {
+            setupSpeech();
             setupPWA();
         };
 
-        function initializeApp() {
-            // Initialize speech recognition
-            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-                setupSpeechRecognition();
-            }
+        function setupSpeech() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) return;
 
-            // Update word count on input
-            document.getElementById('transcript')?.addEventListener('input', updateWordCount);
-            document.getElementById('manualAnswer')?.addEventListener('input', updateWordCount);
+            recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'en-IN';
 
-            // Load voices
-            if (synthesis) {
-                synthesis.onvoiceschanged = () => {
-                    console.log('✅ Voice system ready');
-                };
-            }
+            recognition.onresult = (event) => {
+                let interim = '';
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const t = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        transcript += t + ' ';
+                    } else {
+                        interim += t;
+                    }
+                }
+                document.getElementById('transcript').textContent = transcript + interim;
+                document.getElementById('transcript').classList.add('active');
+            };
+
+            recognition.onerror = () => {
+                document.getElementById('micStatus').textContent = 'Microphone error. Try typing instead.';
+            };
         }
 
-        // ========== PWA SETUP ==========
-        
         function setupPWA() {
             if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('✅ Service Worker registered'))
-                    .catch(err => console.log('SW not available:', err));
+                navigator.serviceWorker.register('sw.js').catch(() => {});
             }
         }
 
-        // ========== PASSWORD HASHING (Synchronous for initial setup) ==========
-        
-        function hashPasswordSync(password) {
-            // Simple hash function for browser
-            let hash = 0;
-            for (let i = 0; i < password.length; i++) {
-                const char = password.charCodeAt(i);
-                hash = ((hash << 5) - hash) + char;
-                hash = hash & hash; // Convert to 32bit integer
+        // ===== PASSWORD HASHING =====
+        function hashPass(pwd) {
+            let h = 0;
+            for (let i = 0; i < pwd.length; i++) {
+                h = ((h << 5) - h) + pwd.charCodeAt(i);
+                h = h & h;
             }
-            return Math.abs(hash).toString(16);
+            return Math.abs(h).toString(16);
         }
 
-        // ========== SECURE LOGIN SYSTEM ==========
-        
+        // ===== LOGIN =====
         function login() {
-            const username = document.getElementById('loginUsername').value.trim();
-            const password = document.getElementById('loginPassword').value;
-            const loginBtn = document.getElementById('loginBtn');
+            const user = document.getElementById('username').value.trim();
+            const pass = document.getElementById('password').value;
+            const btn = document.getElementById('loginBtn');
 
-            if (!username || !password) {
-                alert('❌ Please enter both username and password');
+            if (!user || !pass) {
+                alert('Enter username and password');
                 return;
             }
 
-            // Check if account is locked
-            if (loginAttempts[username]) {
-                const userData = loginAttempts[username];
-
-                if (
-                    userData.count >= MAX_LOGIN_ATTEMPTS &&
-                    Date.now() - userData.lastAttempt < LOCKOUT_TIME
-                ) {
-                    const minutesLeft = Math.ceil(
-                        (LOCKOUT_TIME - (Date.now() - userData.lastAttempt)) / 60000
-                    );
-
-                    const lockoutWarning = document.getElementById('lockoutWarning');
-                    lockoutWarning.classList.remove('hidden');
-                    lockoutWarning.innerHTML = `
-                        🔒 Account locked for ${minutesLeft} minute(s) due to too many failed attempts.
-                        <br>Try again later.
-                    `;
-
-                    loginBtn.disabled = true;
-                    loginBtn.textContent = `⏳ Try again in ${minutesLeft} min`;
-
+            // Check lockout
+            if (loginAttempts[user] && loginAttempts[user].count >= MAX_ATTEMPTS) {
+                const time = Date.now() - loginAttempts[user].last;
+                if (time < LOCKOUT_TIME) {
+                    const min = Math.ceil((LOCKOUT_TIME - time) / 60000);
+                    document.getElementById('lockoutAlert').classList.remove('hidden');
+                    document.getElementById('lockoutAlert').textContent = `🔒 Try again in ${min} minutes`;
+                    btn.disabled = true;
                     return;
-                }
-
-                // Reset if lockout expired
-                if (Date.now() - userData.lastAttempt > LOCKOUT_TIME) {
-                    loginAttempts[username] = { count: 0, lastAttempt: 0 };
-                    document.getElementById('lockoutWarning').classList.add('hidden');
                 }
             }
 
-            // Hash input password
-            const hashedPassword = hashPasswordSync(password);
+            const found = users.find(u => u.username === user && u.password === hashPass(pass));
 
-            // Find user
-            const user = users.find(
-                u => u.username === username && u.password === hashedPassword
-            );
-
-            if (user) {
-                // Reset login attempts on success
-                loginAttempts[username] = { count: 0, lastAttempt: 0 };
+            if (found) {
+                loginAttempts[user] = { count: 0 };
                 localStorage.setItem('loginAttempts', JSON.stringify(loginAttempts));
-                document.getElementById('lockoutWarning').classList.add('hidden');
-                loginBtn.disabled = false;
-                loginBtn.textContent = '🚀 Login';
-
-                currentUser = user;
-                showPage(user.role === 'admin' ? 'adminPage' : 'studentPage');
-
-                if (user.role === 'admin') {
-                    loadAdminData();
-                } else {
-                    loadStudentData();
-                }
-
-                // Clear login fields
-                document.getElementById('loginUsername').value = '';
-                document.getElementById('loginPassword').value = '';
-
+                currentUser = found;
+                showPage(found.role === 'admin' ? 'adminPage' : 'studentPage');
+                if (found.role === 'admin') loadAdmin();
+                else loadStudent();
             } else {
-                // Increase failed attempts
-                if (!loginAttempts[username]) {
-                    loginAttempts[username] = { count: 0, lastAttempt: 0 };
-                }
-
-                loginAttempts[username].count++;
-                loginAttempts[username].lastAttempt = Date.now();
-
+                loginAttempts[user] = loginAttempts[user] || { count: 0 };
+                loginAttempts[user].count++;
+                loginAttempts[user].last = Date.now();
                 localStorage.setItem('loginAttempts', JSON.stringify(loginAttempts));
 
-                const remaining = MAX_LOGIN_ATTEMPTS - loginAttempts[username].count;
-
-                if (remaining > 0) {
-                    alert(`❌ Invalid credentials.\n\n${remaining} attempts remaining.`);
+                const left = MAX_ATTEMPTS - loginAttempts[user].count;
+                if (left > 0) {
+                    alert(`Invalid. ${left} attempts left`);
                 } else {
-                    document.getElementById('lockoutWarning').classList.remove('hidden');
-                    document.getElementById('lockoutWarning').innerHTML = `
-                        🔒 Account locked for 15 minutes due to too many failed attempts.
-                    `;
-                    loginBtn.disabled = true;
-                    loginBtn.textContent = '⏳ Account Locked (15 min)';
+                    document.getElementById('lockoutAlert').classList.remove('hidden');
+                    document.getElementById('lockoutAlert').textContent = '🔒 Account locked for 15 minutes';
+                    btn.disabled = true;
                 }
             }
         }
 
         function logout() {
-            if (confirm('Are you sure you want to logout?')) {
+            if (confirm('Logout?')) {
                 currentUser = null;
                 showPage('loginPage');
-                document.getElementById('lockoutWarning').classList.add('hidden');
+                document.getElementById('username').value = '';
+                document.getElementById('password').value = '';
+                document.getElementById('lockoutAlert').classList.add('hidden');
                 document.getElementById('loginBtn').disabled = false;
-                document.getElementById('loginBtn').textContent = '🚀 Login';
             }
         }
 
-        function showPage(pageId) {
-            // Security: Prevent unauthorized access to admin panel
-            if (pageId === 'adminPage' && (!currentUser || currentUser.role !== 'admin')) {
-                alert('⚠️ Unauthorized Access');
+        function showPage(id) {
+            if (id === 'adminPage' && (!currentUser || currentUser.role !== 'admin')) return;
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        // ===== PDF UPLOAD & EXTRACTION =====
+        async function uploadPDF() {
+            const file = document.getElementById('pdfFile').files[0];
+            if (!file) {
+                alert('Select PDF file');
                 return;
             }
 
-            document.querySelectorAll('.login-page, .admin-page, .student-page, .viva-page').forEach(page => {
-                page.classList.remove('active');
-            });
-            document.getElementById(pageId).classList.add('active');
-        }
+            document.getElementById('uploadStatus').innerHTML = '<div class="loading"></div>';
 
-        // ========== ADMIN FUNCTIONS ==========
-        
-        function loadAdminData() {
-            updateAdminStats();
-            loadAdminBookList();
-            loadStudentList();
-            loadRecentActivity();
-        }
+            try {
+                const text = await extractPDFText(file);
+                const title = document.getElementById('bookTitle').value || file.name.replace('.pdf', '');
+                
+                // Extract important topics
+                const topics = extractTopics(text);
 
-        function updateAdminStats() {
-            document.getElementById('adminBooksCount').textContent = books.length;
-            document.getElementById('adminStudentsCount').textContent = users.filter(u => u.role === 'student').length;
-            document.getElementById('adminSessionsCount').textContent = sessions.length;
-        }
+                const book = {
+                    id: Date.now(),
+                    title: title,
+                    subject: document.getElementById('bookSubject').value || 'Medical',
+                    content: text,
+                    difficulty: document.getElementById('bookDifficulty').value,
+                    uploadDate: new Date().toISOString(),
+                    uploadedBy: currentUser.username,
+                    topics: topics
+                };
 
-        function uploadBook() {
-            const title = document.getElementById('bookTitle').value.trim();
-            const subject = document.getElementById('bookSubject').value.trim();
-            const content = document.getElementById('bookContent').value.trim();
-            const difficulty = document.getElementById('bookDifficulty').value;
-
-            if (!title || !content) {
-                alert('❌ Please fill in book title and content!');
-                return;
-            }
-
-            if (content.length < 100) {
-                alert('⚠️ Please add more content (minimum 100 characters)');
-                return;
-            }
-
-            const book = {
-                id: Date.now(),
-                title: title,
-                subject: subject || 'General',
-                content: content,
-                difficulty: difficulty,
-                uploadDate: new Date().toISOString(),
-                uploadedBy: currentUser.username,
-                topicCount: extractTopics(content).length
-            };
-
-            books.push(book);
-            localStorage.setItem('books', JSON.stringify(books));
-
-            alert(`✅ Book "${title}" uploaded successfully!`);
-            
-            // Clear form
-            document.getElementById('bookTitle').value = '';
-            document.getElementById('bookSubject').value = '';
-            document.getElementById('bookContent').value = '';
-
-            loadAdminData();
-        }
-
-        function loadAdminBookList() {
-            const bookList = document.getElementById('adminBookList');
-            
-            if (books.length === 0) {
-                bookList.innerHTML = '<li style="text-align: center; color: #666; padding: 20px;">No books uploaded yet</li>';
-                return;
-            }
-
-            bookList.innerHTML = books.map(book => `
-                <li class="book-item">
-                    <div style="display: flex; justify-content: space-between; align-items: start;">
-                        <div style="flex: 1;">
-                            <strong style="font-size: 18px; color: var(--primary-color);">${book.title}</strong>
-                            <span class="badge" style="background: var(--secondary-color);">${book.subject}</span>
-                            <span class="badge" style="background: ${getDifficultyColor(book.difficulty)};">${book.difficulty}</span>
-                            <br>
-                            <small style="color: #666;">
-                                📅 ${new Date(book.uploadDate).toLocaleDateString()} | 
-                                📊 ${book.topicCount} topics | 
-                                👤 ${book.uploadedBy}
-                            </small>
-                        </div>
-                        <div>
-                            <button onclick="deleteBook(${book.id})" class="btn-small btn-danger">🗑️ Delete</button>
-                        </div>
-                    </div>
-                </li>
-            `).join('');
-        }
-
-        function getDifficultyColor(difficulty) {
-            switch(difficulty) {
-                case 'basic': return '#28a745';
-                case 'intermediate': return '#ffc107';
-                case 'advanced': return '#dc3545';
-                default: return '#6c757d';
-            }
-        }
-
-        function deleteBook(bookId) {
-            if (confirm('Are you sure? This will affect all student records with this book.')) {
-                books = books.filter(b => b.id !== bookId);
+                books.push(book);
                 localStorage.setItem('books', JSON.stringify(books));
-                alert('✅ Book deleted');
-                loadAdminData();
+
+                document.getElementById('uploadStatus').innerHTML = '<div class="alert alert-success">✅ Book uploaded successfully!</div>';
+                document.getElementById('pdfFile').value = '';
+                document.getElementById('bookTitle').value = '';
+                document.getElementById('bookSubject').value = '';
+
+                loadAdmin();
+            } catch (error) {
+                document.getElementById('uploadStatus').innerHTML = '<div class="alert alert-danger">❌ Error: ' + error.message + '</div>';
             }
         }
 
-        function addStudent() {
-            const username = document.getElementById('newStudentUsername').value.trim();
-            const password = document.getElementById('newStudentPassword').value;
-            const email = document.getElementById('newStudentEmail').value.trim();
+        async function extractPDFText(file) {
+            const pdf = await pdfjsLib.getDocument(URL.createObjectURL(file)).promise;
+            let text = '';
 
-            if (!username || !password) {
-                alert('❌ Please fill in username and password!');
-                return;
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const content = await page.getTextContent();
+                text += content.items.map(i => i.str).join(' ') + '\n';
             }
 
-            if (username.length < 3) {
-                alert('⚠️ Username must be at least 3 characters');
-                return;
-            }
-
-            if (password.length < 6) {
-                alert('⚠️ Password must be at least 6 characters');
-                return;
-            }
-
-            if (users.find(u => u.username === username)) {
-                alert('❌ Username already exists!');
-                return;
-            }
-
-            const hashedPassword = hashPasswordSync(password);
-
-            users.push({
-                username: username,
-                password: hashedPassword,
-                role: 'student',
-                email: email,
-                createdAt: new Date().toISOString()
-            });
-
-            localStorage.setItem('users', JSON.stringify(users));
-            alert(`✅ Student "${username}" added successfully!`);
-            
-            // Clear form
-            document.getElementById('newStudentUsername').value = '';
-            document.getElementById('newStudentPassword').value = '';
-            document.getElementById('newStudentEmail').value = '';
-            
-            loadAdminData();
+            return text;
         }
 
-        function loadStudentList() {
-            const studentList = document.getElementById('studentList');
-            const students = users.filter(u => u.role === 'student');
-            
-            if (students.length === 0) {
-                studentList.innerHTML = '<p style="color: #666;">No students registered yet.</p>';
-                return;
-            }
-
-            studentList.innerHTML = '<h4>Registered Students:</h4>' + students.map(s => {
-                const studentSessions = sessions.filter(session => session.username === s.username);
-                const avgScore = studentSessions.length > 0 
-                    ? (studentSessions.reduce((sum, sess) => sum + parseFloat(sess.averageScore), 0) / studentSessions.length).toFixed(2)
-                    : 'N/A';
-
-                return `
-                    <div class="card">
-                        <strong>👨‍🎓 ${s.username}</strong>
-                        ${s.email ? `<br><small>📧 ${s.email}</small>` : ''}
-                        <br><small>📅 Joined: ${new Date(s.createdAt).toLocaleDateString()}</small>
-                        <br><small>📊 Sessions: ${studentSessions.length} | Avg Score: ${avgScore}</small>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function loadRecentActivity() {
-            const activityDiv = document.getElementById('recentActivity');
-            const recentSessions = sessions.slice(-5).reverse();
-            
-            if (recentSessions.length === 0) {
-                activityDiv.innerHTML = '<p style="color: #666;">No activity yet.</p>';
-                return;
-            }
-
-            activityDiv.innerHTML = recentSessions.map(session => `
-                <div class="card">
-                    <strong>👨‍🎓 ${session.username}</strong> completed a session
-                    <br><small>📅 ${new Date(session.date).toLocaleString()}</small>
-                    <br><small>📚 Books: ${session.bookTitles.join(', ')}</small>
-                    <br><small>📊 Score: ${session.averageScore}/10 (${session.grade})</small>
-                </div>
-            `).join('');
-        }
-
-        // ========== STUDENT FUNCTIONS ==========
-        
-        function loadStudentData() {
-            document.getElementById('studentWelcome').textContent = `🎯 Welcome, ${currentUser.username}!`;
-            updateStudentStats();
-            loadStudentBookList();
-            loadSessionHistory();
-            drawPerformanceChart();
-        }
-
-        function updateStudentStats() {
-            const userSessions = sessions.filter(s => s.username === currentUser.username);
-            
-            document.getElementById('studentSessionCount').textContent = userSessions.length;
-            
-            if (userSessions.length > 0) {
-                const avgScore = (userSessions.reduce((sum, s) => sum + parseFloat(s.averageScore), 0) / userSessions.length).toFixed(1);
-                const bestScore = Math.max(...userSessions.map(s => parseFloat(s.averageScore))).toFixed(1);
-                
-                document.getElementById('studentAvgScore').textContent = avgScore;
-                document.getElementById('studentBestScore').textContent = bestScore;
-            } else {
-                document.getElementById('studentAvgScore').textContent = '-';
-                document.getElementById('studentBestScore').textContent = '-';
-            }
-        }
-
-        function loadStudentBookList() {
-            const bookList = document.getElementById('studentBookList');
-            
-            if (books.length === 0) {
-                bookList.innerHTML = '<li style="text-align: center; color: #666; padding: 20px;">No books available yet. Please contact admin.</li>';
-                return;
-            }
-
-            bookList.innerHTML = books.map(book => `
-                <li class="book-item" onclick="toggleBookSelection(${book.id})" id="book-item-${book.id}">
-                    <input type="checkbox" id="book-${book.id}" style="width: auto; margin-right: 10px;" onclick="event.stopPropagation();">
-                    <strong style="font-size: 16px;">${book.title}</strong>
-                    <span class="badge" style="background: var(--secondary-color);">${book.subject}</span>
-                    <span class="badge" style="background: ${getDifficultyColor(book.difficulty)};">${book.difficulty}</span>
-                    <br>
-                    <small style="color: #666;">📊 ${book.topicCount} topics available</small>
-                </li>
-            `).join('');
-        }
-
-        function toggleBookSelection(bookId) {
-            const checkbox = document.getElementById(`book-${bookId}`);
-            const bookItem = document.getElementById(`book-item-${bookId}`);
-            
-            checkbox.checked = !checkbox.checked;
-            
-            if (checkbox.checked) {
-                bookItem.classList.add('selected');
-            } else {
-                bookItem.classList.remove('selected');
-            }
-        }
-
-        function loadSessionHistory() {
-            const userSessions = sessions.filter(s => s.username === currentUser.username);
-            const historyDiv = document.getElementById('sessionHistory');
-            
-            if (userSessions.length === 0) {
-                historyDiv.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">No previous sessions yet. Start your first viva!</p>';
-                return;
-            }
-
-            historyDiv.innerHTML = userSessions.reverse().map((session, index) => `
-                <div class="card">
-                    <div style="display: flex; justify-content: space-between; align-items: start;">
-                        <div style="flex: 1;">
-                            <strong>Session #${userSessions.length - index}</strong>
-                            <br><small>📅 ${new Date(session.date).toLocaleString()}</small>
-                            <br><small>📚 ${session.bookTitles.join(', ')}</small>
-                            <br><small>⏱️ ${session.duration} minutes</small>
-                        </div>
-                        <div style="text-align: right;">
-                            <div class="score-badge ${getScoreBadgeClass(parseFloat(session.averageScore))}" style="display: inline-block;">
-                                ${session.averageScore}/10
-                            </div>
-                            <br><strong style="color: var(--primary-color); font-size: 18px;">${session.grade}</strong>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function getScoreBadgeClass(score) {
-            if (score >= 8) return '';
-            if (score >= 6) return 'medium';
-            return 'low';
-        }
-
-        function drawPerformanceChart() {
-            const canvas = document.getElementById('scoreChart');
-            if (!canvas) return;
-            
-            const ctx = canvas.getContext('2d');
-            const userSessions = sessions.filter(s => s.username === currentUser.username);
-            
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            if (userSessions.length === 0) {
-                ctx.fillStyle = '#666';
-                ctx.font = '16px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText('No data to display yet. Complete some sessions first!', canvas.width / 2, canvas.height / 2);
-                return;
-            }
-
-            const recentSessions = userSessions.slice(-10);
-            const scores = recentSessions.map(s => parseFloat(s.averageScore));
-            const maxScore = 10;
-            const padding = 40;
-            const chartWidth = canvas.width - (padding * 2);
-            const chartHeight = canvas.height - (padding * 2);
-            const barWidth = chartWidth / scores.length - 10;
-            
-            // Draw axes
-            ctx.strokeStyle = '#ddd';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(padding, padding);
-            ctx.lineTo(padding, canvas.height - padding);
-            ctx.lineTo(canvas.width - padding, canvas.height - padding);
-            ctx.stroke();
-            
-            // Draw bars
-            scores.forEach((score, index) => {
-                const barHeight = (score / maxScore) * chartHeight;
-                const x = padding + (index * (barWidth + 10));
-                const y = canvas.height - padding - barHeight;
-                
-                // Gradient for bar
-                const gradient = ctx.createLinearGradient(x, y, x, canvas.height - padding);
-                gradient.addColorStop(0, score >= 8 ? '#28a745' : score >= 6 ? '#ffc107' : '#dc3545');
-                gradient.addColorStop(1, score >= 8 ? '#20c997' : score >= 6 ? '#ffca2c' : '#e35d6a');
-                
-                ctx.fillStyle = gradient;
-                ctx.fillRect(x, y, barWidth, barHeight);
-                
-                // Score text on bar
-                ctx.fillStyle = '#000';
-                ctx.font = 'bold 12px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText(score.toFixed(1), x + barWidth/2, y - 5);
-                
-                // Session number below
-                ctx.fillStyle = '#666';
-                ctx.font = '10px Arial';
-                ctx.fillText(`#${index + 1}`, x + barWidth/2, canvas.height - padding + 15);
-            });
-            
-            // Y-axis labels
-            ctx.fillStyle = '#666';
-            ctx.font = '12px Arial';
-            ctx.textAlign = 'right';
-            for (let i = 0; i <= 10; i += 2) {
-                const y = canvas.height - padding - ((i / maxScore) * chartHeight);
-                ctx.fillText(i, padding - 10, y + 5);
-            }
-            
-            // Title
-            ctx.fillStyle = '#333';
-            ctx.font = 'bold 14px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText('Performance Trend (Last 10 Sessions)', canvas.width / 2, 20);
-        }
-
-        function downloadAllResults() {
-            const userSessions = sessions.filter(s => s.username === currentUser.username);
-            
-            if (userSessions.length === 0) {
-                alert('❌ No sessions to download!');
-                return;
-            }
-
-            let report = `AI MEDICAL VIVA - PERFORMANCE REPORT\n`;
-            report += `Student: ${currentUser.username}\n`;
-            report += `Generated: ${new Date().toLocaleString()}\n`;
-            report += `Total Sessions: ${userSessions.length}\n`;
-            report += `\n${'='.repeat(50)}\n\n`;
-
-            userSessions.forEach((session, i) => {
-                report += `SESSION ${i + 1}\n`;
-                report += `Date: ${new Date(session.date).toLocaleString()}\n`;
-                report += `Books: ${session.bookTitles.join(', ')}\n`;
-                report += `Duration: ${session.duration} minutes\n`;
-                report += `Score: ${session.averageScore}/10 (Grade: ${session.grade})\n`;
-                report += `Questions Answered: ${session.questionCount}\n`;
-                report += `\n${'-'.repeat(50)}\n\n`;
-            });
-
-            downloadTextFile(report, `viva-report-${currentUser.username}.txt`);
-        }
-
-        // ========== VIVA SESSION ==========
-        
-        function startViva() {
-            const selectedBooks = books.filter(book => 
-                document.getElementById(`book-${book.id}`)?.checked
-            );
-
-            if (selectedBooks.length === 0) {
-                alert('❌ Please select at least one book!');
-                return;
-            }
-
-            currentSession.duration = parseInt(document.getElementById('sessionDuration').value);
-            currentSession.difficulty = document.getElementById('sessionDifficulty').value;
-            currentSession.selectedBooks = selectedBooks;
-            currentSession.voiceSpeed = parseFloat(document.getElementById('voiceSpeed').value);
-            
-            currentSession.questions = generateQuestions(selectedBooks, currentSession.duration, currentSession.difficulty);
-            currentSession.answers = [];
-            currentSession.currentQuestionIndex = 0;
-            currentSession.startTime = Date.now();
-            currentSession.isPaused = false;
-
-            showPage('vivaPage');
-            startTimer();
-            displayQuestion();
-            requestMicPermission();
-        }
-
-        function generateQuestions(selectedBooks, duration, difficulty) {
-            const questionsPerBook = Math.ceil((duration / 5) / selectedBooks.length);
-            let allQuestions = [];
-
-            selectedBooks.forEach(book => {
-                const topics = extractTopics(book.content);
-                const selectedTopics = selectTopicsByDifficulty(topics, questionsPerBook, difficulty);
-                
-                const bookQuestions = selectedTopics.map(topic => ({
-                    question: generateQuestionText(topic, difficulty),
-                    topic: topic,
-                    bookTitle: book.title,
-                    reference: book.content,
-                    difficulty: difficulty,
-                    expectedAnswerLength: difficulty === 'easy' ? 50 : difficulty === 'medium' ? 100 : 150
-                }));
-                
-                allQuestions = allQuestions.concat(bookQuestions);
-            });
-
-            return shuffleArray(allQuestions);
-        }
-
-        function extractTopics(content) {
-            const sentences = content.split(/[.!?]+/).filter(s => s.trim().length > 20);
+        // ===== EXTRACT IMPORTANT TOPICS =====
+        function extractTopics(text) {
+            const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 30);
             const topics = [];
-            
-            sentences.forEach(sentence => {
-                const words = sentence.trim().split(' ');
+
+            sentences.forEach(sent => {
+                const words = sent.trim().split(/\s+/).slice(0, 6);
                 if (words.length >= 3) {
-                    const topicLength = Math.min(6, Math.max(3, Math.floor(words.length / 3)));
-                    const topic = words.slice(0, topicLength).join(' ');
-                    if (topic.length > 10) {
+                    const topic = words.join(' ');
+                    if (topic.length > 15 && !topics.includes(topic)) {
                         topics.push(topic);
                     }
                 }
             });
-            
-            return [...new Set(topics)];
+
+            return topics.slice(0, 20); // Top 20 topics
         }
 
-        function selectTopicsByDifficulty(topics, count, difficulty) {
-            const shuffled = shuffleArray([...topics]);
-            return shuffled.slice(0, count);
+        // ===== ADMIN FUNCTIONS =====
+        function loadAdmin() {
+            document.getElementById('bookCount').textContent = books.length;
+            document.getElementById('studentCount').textContent = users.filter(u => u.role === 'student').length;
+            document.getElementById('sessionCount').textContent = sessions.length;
+
+            // Books
+            let html = '';
+            books.forEach(b => {
+                html += `
+                    <div class="book-item">
+                        <strong>${b.title}</strong> - ${b.subject}
+                        <br><small>${b.topics.length} topics | ${b.difficulty}</small>
+                        <button onclick="deleteBook(${b.id})" class="btn-small btn-danger" style="margin-top: 10px;">Delete</button>
+                    </div>
+                `;
+            });
+            document.getElementById('booksList').innerHTML = html || '<p>No books</p>';
+
+            // Students
+            html = '';
+            users.filter(u => u.role === 'student').forEach(s => {
+                const sess = sessions.filter(session => session.username === s.username);
+                html += `
+                    <div class="book-item">
+                        <strong>${s.username}</strong>
+                        <br><small>Sessions: ${sess.length}</small>
+                    </div>
+                `;
+            });
+            document.getElementById('studentsList').innerHTML = html || '<p>No students</p>';
+
+            // Recent
+            html = '';
+            sessions.slice(-5).reverse().forEach(s => {
+                html += `
+                    <div class="book-item">
+                        <strong>${s.username}</strong> - ${s.score}/10 (${s.grade})
+                        <br><small>${new Date(s.date).toLocaleString()}</small>
+                    </div>
+                `;
+            });
+            document.getElementById('recentActivity').innerHTML = html || '<p>No activity</p>';
         }
 
-        function generateQuestionText(topic, difficulty) {
-            const questionStarters = {
-                easy: [
-                    `Define ${topic}.`,
-                    `What is ${topic}?`,
-                    `Explain ${topic} in brief.`
-                ],
-                medium: [
-                    `Explain the clinical significance of ${topic}.`,
-                    `Describe ${topic} and its importance.`,
-                    `Discuss ${topic} in detail.`
-                ],
-                hard: [
-                    `Critically analyze ${topic} with clinical correlations.`,
-                    `Explain the pathophysiology related to ${topic}.`,
-                    `Discuss ${topic} with recent advances and controversies.`
-                ]
-            };
-            
-            const starters = questionStarters[difficulty] || questionStarters.medium;
-            return starters[Math.floor(Math.random() * starters.length)];
-        }
-
-        function shuffleArray(array) {
-            const newArray = [...array];
-            for (let i = newArray.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+        function deleteBook(id) {
+            if (confirm('Delete book?')) {
+                books = books.filter(b => b.id !== id);
+                localStorage.setItem('books', JSON.stringify(books));
+                loadAdmin();
             }
-            return newArray;
+        }
+
+        function addStudent() {
+            const user = document.getElementById('studentUsername').value.trim();
+            const pass = document.getElementById('studentPassword').value;
+
+            if (!user || !pass || pass.length < 6) {
+                alert('Valid username and password required');
+                return;
+            }
+
+            if (users.find(u => u.username === user)) {
+                alert('Username exists');
+                return;
+            }
+
+            users.push({
+                username: user,
+                password: hashPass(pass),
+                role: 'student'
+            });
+
+            localStorage.setItem('users', JSON.stringify(users));
+            document.getElementById('studentUsername').value = '';
+            document.getElementById('studentPassword').value = '';
+            document.getElementById('studentEmail').value = '';
+            loadAdmin();
+        }
+
+        // ===== STUDENT FUNCTIONS =====
+        function loadStudent() {
+            document.getElementById('studentTitle').textContent = `Welcome, ${currentUser.username}!`;
+
+            const mySess = sessions.filter(s => s.username === currentUser.username);
+            document.getElementById('mySessions').textContent = mySess.length;
+
+            if (mySess.length > 0) {
+                const avg = (mySess.reduce((a, b) => a + parseFloat(b.score), 0) / mySess.length).toFixed(1);
+                const best = Math.max(...mySess.map(s => parseFloat(s.score))).toFixed(1);
+                document.getElementById('myAvg').textContent = avg;
+                document.getElementById('myBest').textContent = best;
+            }
+
+            drawChart(mySess);
+
+            // Books
+            let html = '';
+            books.forEach(b => {
+                html += `
+                    <div class="book-item" onclick="toggleBook(${b.id})">
+                        <input type="checkbox" id="book${b.id}" onclick="event.stopPropagation();">
+                        <strong>${b.title}</strong>
+                        <br><small>${b.topics.length} topics</small>
+                    </div>
+                `;
+            });
+            document.getElementById('booksList').innerHTML = html || '<p>No books available</p>';
+
+            // History
+            html = '';
+            mySess.reverse().forEach((s, i) => {
+                html += `
+                    <div class="book-item">
+                        <strong>Session ${mySess.length - i}</strong>
+                        <br>Score: <strong>${s.score}/10</strong> (${s.grade})
+                        <br><small>${new Date(s.date).toLocaleString()}</small>
+                    </div>
+                `;
+            });
+            document.getElementById('history').innerHTML = html || '<p>No sessions yet</p>';
+        }
+
+        function drawChart(sessions) {
+            const canvas = document.getElementById('chart');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (sessions.length === 0) {
+                ctx.fillStyle = '#666';
+                ctx.font = '14px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Complete sessions to see chart', canvas.width / 2, canvas.height / 2);
+                return;
+            }
+
+            const scores = sessions.map(s => parseFloat(s.score));
+            const h = canvas.height - 40;
+            const w = canvas.width - 40;
+            const barW = w / scores.length - 5;
+
+            scores.forEach((score, i) => {
+                const barH = (score / 10) * h;
+                const x = 20 + (i * (barW + 5));
+                const y = canvas.height - 20 - barH;
+
+                ctx.fillStyle = score >= 8 ? '#28a745' : score >= 6 ? '#ffc107' : '#dc3545';
+                ctx.fillRect(x, y, barW, barH);
+
+                ctx.fillStyle = '#000';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(score, x + barW / 2, y - 5);
+            });
+        }
+
+        function toggleBook(id) {
+            const cb = document.getElementById('book' + id);
+            cb.checked = !cb.checked;
+        }
+
+        // ===== START VIVA =====
+        function startViva() {
+            const selected = Array.from(document.querySelectorAll('[id^="book"]:checked')).map(cb => {
+                const id = parseInt(cb.id.replace('book', ''));
+                return books.find(b => b.id === id);
+            });
+
+            if (selected.length === 0) {
+                alert('Select at least one book');
+                return;
+            }
+
+            viva.books = selected;
+            viva.duration = parseInt(document.getElementById('duration').value);
+            viva.difficulty = document.getElementById('difficulty').value;
+            viva.speed = parseFloat(document.getElementById('speed').value);
+
+            // Generate questions from topics
+            viva.questions = [];
+            selected.forEach(book => {
+                book.topics.forEach(topic => {
+                    viva.questions.push({
+                        topic: topic,
+                        book: book.title,
+                        difficulty: viva.difficulty,
+                        content: book.content
+                    });
+                });
+            });
+
+            // Shuffle
+            viva.questions.sort(() => Math.random() - 0.5);
+            viva.questions = viva.questions.slice(0, Math.ceil(viva.duration / 5));
+
+            viva.answers = [];
+            viva.index = 0;
+            transcript = '';
+
+            showPage('vivaPage');
+            displayQuestion();
+            startTimer();
         }
 
         function displayQuestion() {
-            const question = currentSession.questions[currentSession.currentQuestionIndex];
-            
-            document.getElementById('currentQuestion').textContent = question.question;
-            document.getElementById('questionTopic').textContent = `📚 ${question.bookTitle}`;
-            document.getElementById('questionDifficulty').textContent = `🎯 ${question.difficulty.toUpperCase()}`;
-            
-            const progress = ((currentSession.currentQuestionIndex + 1) / currentSession.questions.length) * 100;
-            document.getElementById('progressBar').style.width = progress + '%';
-            document.getElementById('progressText').textContent = 
-                `Question ${currentSession.currentQuestionIndex + 1}/${currentSession.questions.length}`;
+            const q = viva.questions[viva.index];
+            document.getElementById('question').textContent = `Explain ${q.topic}`;
+            document.getElementById('topic').textContent = q.book;
+            document.getElementById('qdifficulty').textContent = q.difficulty.toUpperCase();
 
-            document.getElementById('feedbackSection').classList.add('hidden');
-            document.getElementById('transcript').textContent = 'Your answer will appear here as you speak...';
+            document.getElementById('evalSection').classList.add('hidden');
+            document.getElementById('transcript').textContent = 'Say your answer...';
             document.getElementById('transcript').classList.remove('active');
-            document.getElementById('manualAnswer').value = '';
-            currentTranscript = '';
-            updateWordCount();
+            document.getElementById('textAnswer').value = '';
+            transcript = '';
 
-            setTimeout(() => speakQuestion(), 500);
+            updateProgress();
+            repeatQuestion();
         }
 
-        function speakQuestion() {
-            const question = currentSession.questions[currentSession.currentQuestionIndex];
-            
-            synthesis.cancel();
-            
-            const utterance = new SpeechSynthesisUtterance(question.question);
-            utterance.lang = 'en-IN';
-            utterance.rate = currentSession.voiceSpeed || 0.9;
-            utterance.pitch = 1.0;
-            utterance.volume = 1.0;
-            
-            const voices = synthesis.getVoices();
-            const indianVoice = voices.find(v => v.lang.includes('en-IN')) || voices.find(v => v.lang.includes('en-US')) || voices[0];
-            if (indianVoice) {
-                utterance.voice = indianVoice;
-            }
+        function updateProgress() {
+            const pct = ((viva.index + 1) / viva.questions.length) * 100;
+            document.getElementById('progress').style.width = pct + '%';
+            document.getElementById('progressText').textContent = `${viva.index + 1}/${viva.questions.length}`;
+        }
 
-            const avatar = document.getElementById('professorAvatar');
+        function repeatQuestion() {
+            const q = viva.questions[viva.index];
+            const avatar = document.getElementById('avatar');
             avatar.classList.add('speaking');
-            
-            utterance.onend = () => {
-                avatar.classList.remove('speaking');
-            };
-            
-            synthesis.speak(utterance);
+
+            const utterance = new SpeechSynthesisUtterance(`Explain ${q.topic}`);
+            utterance.lang = 'en-IN';
+            utterance.rate = viva.speed;
+
+            const voices = window.speechSynthesis.getVoices();
+            const voice = voices.find(v => v.lang.includes('en-IN')) || voices[0];
+            if (voice) utterance.voice = voice;
+
+            utterance.onend = () => avatar.classList.remove('speaking');
+            window.speechSynthesis.speak(utterance);
         }
 
-        function skipQuestion() {
-            if (confirm('⚠️ Skipping will deduct 1 point. Continue?')) {
-                const question = currentSession.questions[currentSession.currentQuestionIndex];
-                currentSession.answers.push({
-                    question: question,
-                    answer: '[SKIPPED]',
-                    evaluation: {
-                        score: 0,
-                        feedback: 'Question skipped',
-                        strengths: [],
-                        improvements: ['Attempt all questions'],
-                        skipped: true
-                    }
-                });
-
-                nextQuestion();
-            }
-        }
-
-        // ========== SPEECH RECOGNITION ==========
-        
-        function setupSpeechRecognition() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            recognition = new SpeechRecognition();
-            recognition.continuous = true;
-            recognition.interimResults = true;
-            recognition.lang = 'en-IN';
-            recognition.maxAlternatives = 1;
-
-            recognition.onstart = function() {
-                console.log('🎤 Recording started');
-                document.getElementById('voiceAnimation').classList.remove('hidden');
-            };
-
-            recognition.onresult = function(event) {
-                let interimTranscript = '';
-                let finalTranscript = '';
-
-                for (let i = event.resultIndex; i < event.results.length; i++) {
-                    const transcript = event.results[i][0].transcript;
-                    if (event.results[i].isFinal) {
-                        finalTranscript += transcript + ' ';
-                    } else {
-                        interimTranscript += transcript;
-                    }
-                }
-
-                currentTranscript += finalTranscript;
-                const displayText = currentTranscript + (interimTranscript ? ' ' + interimTranscript : '');
-                
-                const transcriptDiv = document.getElementById('transcript');
-                transcriptDiv.textContent = displayText || 'Your answer will appear here as you speak...';
-                transcriptDiv.classList.add('active');
-                
-                updateWordCount();
-            };
-
-            recognition.onerror = function(event) {
-                console.error('Speech error:', event.error);
-                document.getElementById('voiceAnimation').classList.add('hidden');
-            };
-
-            recognition.onend = function() {
-                document.getElementById('voiceAnimation').classList.add('hidden');
-                if (isRecording) {
-                    recognition.start();
-                }
-            };
-        }
-
-        function requestMicPermission() {
-            navigator.mediaDevices.getUserMedia({ audio: true })
-                .then(() => {
-                    console.log('✅ Mic allowed');
-                })
-                .catch((error) => {
-                    alert('⚠️ Microphone access denied. You can type your answers.');
-                });
-        }
-
-        function toggleRecording() {
+        function toggleMic() {
             if (!recognition) {
-                alert('⚠️ Speech recognition not supported. Please type your answer.');
+                alert('Speech not supported. Type instead.');
                 return;
             }
 
-            const micButton = document.getElementById('micButton');
-            const statusText = document.getElementById('recordingStatus');
-            
+            const btn = document.getElementById('micBtn');
             if (!isRecording) {
-                try {
-                    recognition.start();
-                    isRecording = true;
-                    micButton.classList.add('recording');
-                    micButton.textContent = '⏹️';
-                    statusText.textContent = '🎤 Recording... Click to stop';
-                } catch (error) {
-                    console.error('Recording error:', error);
-                }
+                recognition.start();
+                isRecording = true;
+                btn.classList.add('recording');
+                document.getElementById('micStatus').textContent = '🎤 Recording...';
             } else {
                 recognition.stop();
                 isRecording = false;
-                micButton.classList.remove('recording');
-                micButton.textContent = '🎤';
-                statusText.textContent = 'Click microphone to start recording';
+                btn.classList.remove('recording');
+                document.getElementById('micStatus').textContent = 'Click to record';
             }
         }
 
-        function updateWordCount() {
-            const transcriptText = document.getElementById('transcript').textContent;
-            const manualText = document.getElementById('manualAnswer').value;
-            const text = transcriptText !== 'Your answer will appear here as you speak...' ? transcriptText : manualText;
-            const wordCount = text.trim().split(/\s+/).filter(word => word.length > 0).length;
-            document.getElementById('wordCount').textContent = wordCount;
-        }
-
-        // ========== ANSWER SUBMISSION & EVALUATION ==========
-        
         function submitAnswer() {
-            if (isRecording) {
-                toggleRecording();
-            }
+            if (isRecording) toggleMic();
 
-            const transcriptText = document.getElementById('transcript').textContent;
-            const manualText = document.getElementById('manualAnswer').value.trim();
-            
-            let answer = '';
-            if (transcriptText && transcriptText !== 'Your answer will appear here as you speak...') {
-                answer = currentTranscript.trim();
-            } else if (manualText) {
-                answer = manualText;
-            }
-
-            if (!answer) {
-                alert('❌ Please provide an answer before submitting!');
+            const answer = transcript || document.getElementById('textAnswer').value;
+            if (!answer.trim()) {
+                alert('Provide an answer');
                 return;
             }
 
-            const question = currentSession.questions[currentSession.currentQuestionIndex];
-            const evaluation = evaluateAnswer(answer, question);
+            const q = viva.questions[viva.index];
+            const score = evaluate(answer, q);
 
-            currentSession.answers.push({
-                question: question,
-                answer: answer,
-                evaluation: evaluation,
-                timestamp: new Date().toISOString()
-            });
+            viva.answers.push({ q, answer, score });
 
-            displayEvaluation(evaluation);
+            showEval(score, q);
         }
 
-        function evaluateAnswer(answer, question) {
+        function evaluate(answer, q) {
             const wordCount = answer.split(/\s+/).length;
-            const expectedLength = question.expectedAnswerLength;
-            
             let score = 5;
 
-            if (wordCount >= expectedLength) {
-                score += 2.5;
-            } else if (wordCount >= expectedLength * 0.7) {
-                score += 1.5;
-            } else if (wordCount >= expectedLength * 0.4) {
-                score += 0.5;
-            }
+            // Length
+            if (wordCount >= 80) score += 2;
+            else if (wordCount >= 50) score += 1;
 
-            const keywords = question.topic.toLowerCase().split(' ');
-            const answerLower = answer.toLowerCase();
-            let keywordMatches = 0;
-            
-            keywords.forEach(keyword => {
-                if (answerLower.includes(keyword)) {
-                    keywordMatches++;
-                }
-            });
+            // Topic match
+            const keywords = q.topic.toLowerCase().split(/\s+/);
+            const ansLower = answer.toLowerCase();
+            const matches = keywords.filter(kw => ansLower.includes(kw)).length;
+            score += Math.min(matches, 2);
 
-            score += Math.min(keywordMatches * 0.7, 1.5);
+            // Difficulty
+            if (q.difficulty === 'easy' && score > 7) score += 0.5;
+            if (q.difficulty === 'hard' && score > 5) score += 1;
 
-            if (question.difficulty === 'easy' && score > 7) score += 0.5;
-            if (question.difficulty === 'hard' && score > 5) score += 1;
-
-            score = Math.min(Math.max(score, 0), 10);
-
-            return {
-                score: parseFloat(score.toFixed(1)),
-                feedback: generateFeedback(score, wordCount, expectedLength),
-                strengths: generateStrengths(score, wordCount, keywordMatches),
-                improvements: generateImprovements(score, wordCount, expectedLength, keywordMatches),
-                keyPoints: generateKeyPoints(keywords, answerLower)
-            };
+            return Math.min(Math.max(score, 0), 10).toFixed(1);
         }
 
-        function generateFeedback(score, wordCount, expectedLength) {
-            if (score >= 8) {
-                return '🌟 Excellent! You demonstrated comprehensive understanding with good detail.';
-            } else if (score >= 6.5) {
-                return '✅ Good effort! Your answer covers main points but needs more elaboration.';
-            } else if (score >= 5) {
-                return '📝 Satisfactory. You have basic understanding but need more depth.';
-            } else {
-                return '⚠️ Your answer needs improvement. Review the topic thoroughly.';
-            }
-        }
+        function showEval(score, q) {
+            const badge = document.getElementById('scoreShow');
+            badge.textContent = `${score}/10`;
+            badge.className = 'score-badge';
+            if (score < 6) badge.classList.add('low');
+            else if (score < 8) badge.classList.add('medium');
 
-        function generateStrengths(score, wordCount, keywordMatches) {
-            const strengths = [];
-            
-            if (wordCount > 80) strengths.push('Good elaboration and detail');
-            if (keywordMatches >= 3) strengths.push('Used proper terminology');
-            if (score >= 7) strengths.push('Solid understanding demonstrated');
-            
-            return strengths.length > 0 ? strengths : ['You attempted the question'];
-        }
+            let feed = '';
+            if (score >= 8) feed = '🌟 Excellent understanding!';
+            else if (score >= 6) feed = '✅ Good answer with room for improvement';
+            else feed = '⚠️ Review the topic more';
 
-        function generateImprovements(score, wordCount, expectedLength, keywordMatches) {
-            const improvements = [];
-            
-            if (wordCount < expectedLength * 0.7) improvements.push('Provide more comprehensive explanation');
-            if (keywordMatches < 2) improvements.push('Include more medical terminology');
-            if (score < 7) {
-                improvements.push('Add clinical relevance and examples');
-                improvements.push('Structure answers better: Introduction → Body → Conclusion');
-            }
-            
-            return improvements;
-        }
+            document.getElementById('feedback').textContent = feed;
 
-        function generateKeyPoints(keywords, answerLower) {
-            const keyPoints = [];
-            keywords.forEach(kw => {
-                if (answerLower.includes(kw)) {
-                    keyPoints.push(`✓ ${kw}`);
-                }
-            });
-            return keyPoints.length > 0 ? keyPoints : ['Review all key terms'];
-        }
+            let str = score >= 7 ? '✓ Good detail<br>✓ Proper terms' : '✓ Attempted the question';
+            document.getElementById('strengthsList').innerHTML = str;
 
-        function displayEvaluation(evaluation) {
-            const feedbackSection = document.getElementById('feedbackSection');
-            feedbackSection.classList.remove('hidden');
-            
-            const scoreClass = evaluation.score >= 8 ? '' : evaluation.score >= 6 ? 'medium' : 'low';
-            document.getElementById('scoreDisplay').className = `score-badge ${scoreClass}`;
-            document.getElementById('scoreDisplay').textContent = `Score: ${evaluation.score}/10`;
-            
-            document.getElementById('detailedFeedback').innerHTML = `<p><strong>💬 Feedback:</strong> ${evaluation.feedback}</p>`;
-            
-            const strengthsList = document.getElementById('strengthsList');
-            strengthsList.innerHTML = evaluation.strengths.length > 0
-                ? evaluation.strengths.map(s => `<div class="strength-item">✓ ${s}</div>`).join('')
-                : '<p style="color: #666;">Keep practicing!</p>';
-            
-            const improvementsList = document.getElementById('improvementsList');
-            improvementsList.innerHTML = evaluation.improvements.length > 0
-                ? evaluation.improvements.map(i => `<div class="improvement-item">→ ${i}</div>`).join('')
-                : '<p style="color: #666;">Great job!</p>';
-            
-            const keyPointsList = document.getElementById('keyPointsList');
-            keyPointsList.innerHTML = evaluation.keyPoints.length > 0
-                ? evaluation.keyPoints.map(kp => `<div class="topic-tag">${kp}</div>`).join('')
-                : '<p style="color: #666;">No key points identified</p>';
+            let imp = score < 7 ? '→ Add more clinical examples<br>→ Include related concepts' : '→ Minor improvements';
+            document.getElementById('improvementsList').innerHTML = imp;
+
+            document.getElementById('evalSection').classList.remove('hidden');
         }
 
         function nextQuestion() {
-            currentSession.currentQuestionIndex++;
-
-            if (currentSession.currentQuestionIndex >= currentSession.questions.length) {
-                endSession();
+            viva.index++;
+            if (viva.index >= viva.questions.length) {
+                endViva();
             } else {
-                currentTranscript = '';
+                transcript = '';
                 displayQuestion();
             }
         }
 
-        // ========== SESSION MANAGEMENT ==========
-        
+        function skipQuestion() {
+            if (confirm('Skip and lose points?')) {
+                viva.answers.push({ skipped: true });
+                nextQuestion();
+            }
+        }
+
         function startTimer() {
-            remainingSeconds = currentSession.duration * 60;
-            
+            timeLeft = viva.duration * 60;
             timerInterval = setInterval(() => {
-                if (!currentSession.isPaused) {
-                    remainingSeconds--;
+                timeLeft--;
+                const m = Math.floor(timeLeft / 60);
+                const s = timeLeft % 60;
+                document.getElementById('timer').textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 
-                    const minutes = Math.floor(remainingSeconds / 60);
-                    const seconds = remainingSeconds % 60;
+                if (timeLeft <= 300) {
+                    document.getElementById('timer').classList.add('warning');
+                }
 
-                    const timerDisplay = document.getElementById('timer');
-                    timerDisplay.textContent = 
-                        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-
-                    if (remainingSeconds <= 300) {
-                        timerDisplay.classList.add('warning');
-                    }
-
-                    if (remainingSeconds <= 0) {
-                        clearInterval(timerInterval);
-                        endSession();
-                    }
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    endViva();
                 }
             }, 1000);
         }
 
         function pauseSession() {
-            currentSession.isPaused = !currentSession.isPaused;
-            
-            if (currentSession.isPaused) {
-                synthesis.cancel();
-                if (isRecording) toggleRecording();
-                alert('⏸️ Session Paused. Click Resume when ready.');
+            if (confirm('Pause session?')) {
+                clearInterval(timerInterval);
+                alert('Paused. Click resume to continue.');
+                // Re-implement resume
             }
         }
 
         function endSessionEarly() {
-            if (confirm('End session early and save progress?')) {
+            if (confirm('End and save?')) {
                 clearInterval(timerInterval);
-                endSession();
+                endViva();
             }
         }
 
-        function endSession() {
+        function endViva() {
             clearInterval(timerInterval);
-            synthesis.cancel();
-            if (isRecording) toggleRecording();
+            window.speechSynthesis.cancel();
+            if (isRecording) toggleMic();
 
-            const totalScore = currentSession.answers.reduce((sum, a) => sum + a.evaluation.score, 0);
-            const averageScore = currentSession.answers.length > 0 ? totalScore / currentSession.answers.length : 0;
-            const grade = calculateGrade(averageScore);
+            const total = viva.answers.reduce((a, b) => a + (b.score ? parseFloat(b.score) : 0), 0);
+            const avgScore = (total / viva.answers.length).toFixed(1);
+            const grade = avgScore >= 9 ? 'A+' : avgScore >= 8 ? 'A' : avgScore >= 7 ? 'B+' : avgScore >= 6 ? 'B' : avgScore >= 5 ? 'C' : 'D';
 
-            const sessionRecord = {
+            const session = {
                 username: currentUser.username,
                 date: new Date().toISOString(),
-                bookTitles: currentSession.selectedBooks.map(b => b.title),
-                answers: currentSession.answers,
-                averageScore: averageScore.toFixed(2),
-                grade: grade,
-                duration: currentSession.duration,
-                questionCount: currentSession.answers.length,
-                difficulty: currentSession.difficulty
+                books: viva.books.map(b => b.title),
+                duration: viva.duration,
+                questions: viva.questions.length,
+                answers: viva.answers,
+                score: avgScore,
+                grade: grade
             };
 
-            sessions.push(sessionRecord);
+            sessions.push(session);
             localStorage.setItem('sessions', JSON.stringify(sessions));
 
-            showSessionSummary(sessionRecord);
+            showSummary(session);
         }
 
-        function calculateGrade(score) {
-            if (score >= 9) return 'A+';
-            if (score >= 8) return 'A';
-            if (score >= 7) return 'B+';
-            if (score >= 6) return 'B';
-            if (score >= 5) return 'C';
-            if (score >= 4) return 'D';
-            return 'F';
-        }
-
-        function showSessionSummary(session) {
+        function showSummary(session) {
             const modal = document.getElementById('summaryModal');
-            const summaryContent = document.getElementById('summaryContent');
-
-            const scoresByDifficulty = {
-                easy: [],
-                medium: [],
-                hard: []
-            };
-
-            session.answers.forEach(a => {
-                if (!a.evaluation.skipped) {
-                    scoresByDifficulty[a.question.difficulty].push(a.evaluation.score);
-                }
-            });
-
-            const topScores = [...session.answers]
-                .filter(a => !a.evaluation.skipped)
-                .sort((a, b) => b.evaluation.score - a.evaluation.score)
-                .slice(0, 3);
-
-            const needsWork = [...session.answers]
-                .filter(a => !a.evaluation.skipped)
-                .sort((a, b) => a.evaluation.score - b.evaluation.score)
-                .slice(0, 3);
-
-            summaryContent.innerHTML = `
+            let html = `
                 <div class="stats-grid">
-                    <div class="stat-card">
-                        <h3>${session.averageScore}</h3>
-                        <p>Average Score</p>
+                    <div class="stat-box">
+                        <h3>${session.score}</h3>
+                        <p>Score</p>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-box">
                         <h3>${session.grade}</h3>
                         <p>Grade</p>
                     </div>
-                    <div class="stat-card">
-                        <h3>${session.questionCount}</h3>
+                    <div class="stat-box">
+                        <h3>${session.questions}</h3>
                         <p>Questions</p>
                     </div>
                 </div>
-
                 <div class="card">
-                    <h3>📊 Performance by Difficulty</h3>
-                    ${Object.keys(scoresByDifficulty).map(diff => {
-                        const scores = scoresByDifficulty[diff];
-                        if (scores.length === 0) return '';
-                        const avg = (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1);
-                        return `<p><strong>${diff.toUpperCase()}:</strong> ${avg}/10 (${scores.length} Q)</p>`;
-                    }).join('')}
-                </div>
-
-                <div class="card">
-                    <h3>🏆 Best Answers</h3>
-                    ${topScores.length > 0 
-                        ? topScores.map((a, i) => `<p>${i + 1}. ${a.question.topic} - <strong>${a.evaluation.score}/10</strong></p>`).join('')
-                        : '<p>No data</p>'}
-                </div>
-
-                <div class="card">
-                    <h3>📚 Need Practice</h3>
-                    ${needsWork.length > 0
-                        ? needsWork.map((a, i) => `<p>${i + 1}. ${a.question.topic} - ${a.evaluation.score}/10</p>`).join('')
-                        : '<p>All done well!</p>'}
+                    <h3>Recommendations</h3>
+                    <p>${session.score >= 8 ? '🌟 Excellent! Keep practicing hard questions.' : '📚 Review topics and practice more.'}</p>
                 </div>
             `;
-
+            document.getElementById('summary').innerHTML = html;
             modal.classList.add('active');
         }
 
         function closeSummary() {
             document.getElementById('summaryModal').classList.remove('active');
             showPage('studentPage');
-            loadStudentData();
+            loadStudent();
         }
 
-        function downloadSessionReport() {
+        function downloadReport() {
             const session = sessions[sessions.length - 1];
-            
-            let report = `SESSION REPORT\n${'='.repeat(50)}\n\n`;
+            let report = `Medical Viva Report\n`;
+            report += `Name: ${session.username}\n`;
             report += `Date: ${new Date(session.date).toLocaleString()}\n`;
-            report += `Student: ${session.username}\n`;
-            report += `Books: ${session.bookTitles.join(', ')}\n`;
-            report += `Duration: ${session.duration} minutes\n`;
-            report += `Average Score: ${session.averageScore}/10\n`;
-            report += `Grade: ${session.grade}\n\n`;
-            report += `${'='.repeat(50)}\n\nDETAILED ANSWERS:\n\n`;
+            report += `Score: ${session.score}/10 (${session.grade})\n`;
+            report += `Duration: ${session.duration} min\n`;
+            report += `Questions: ${session.questions}\n\n`;
 
-            session.answers.forEach((qa, index) => {
-                report += `Q${index + 1}. ${qa.question.question}\n`;
-                report += `Your Answer: ${qa.answer}\n`;
-                report += `Score: ${qa.evaluation.score}/10\n`;
-                report += `Feedback: ${qa.evaluation.feedback}\n`;
-                report += `${'—'.repeat(50)}\n\n`;
-            });
-
-            downloadTextFile(report, `session-report-${new Date().getTime()}.txt`);
-        }
-
-        // ========== HELPER FUNCTIONS ==========
-        
-        function downloadTextFile(content, filename) {
-            const blob = new Blob([content], { type: 'text/plain' });
+            const blob = new Blob([report], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = filename;
+            a.download = `viva-report-${Date.now()}.txt`;
             a.click();
-            URL.revokeObjectURL(url);
         }
-
-        // ========== KEYBOARD SHORTCUTS ==========
-        
-        document.addEventListener('keydown', function(e) {
-            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-                const vivaPage = document.getElementById('vivaPage');
-                if (vivaPage.classList.contains('active')) {
-                    submitAnswer();
-                }
-            }
-        });
 
     </script>
 </body>
