@@ -3,19 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#667eea">
     <title>AI Medical Viva Examiner</title>
-    
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👨‍⚕️</text></svg>">
     <link rel="manifest" href="manifest.json">
-    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
         :root {
             --primary: #667eea;
             --secondary: #764ba2;
@@ -23,110 +19,51 @@
             --warning: #ffc107;
             --danger: #dc3545;
             --light: #f8f9fa;
-            --dark: #333;
         }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             min-height: 100vh;
             padding: 10px;
         }
-
         .container {
             max-width: 900px;
             margin: 0 auto;
             background: white;
             border-radius: 20px;
-            padding: 30px;
+            padding: 20px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
-
-        h1 {
-            color: var(--primary);
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 28px;
-        }
-
-        h2, h3 {
-            color: var(--primary);
-            margin: 20px 0 10px 0;
-        }
-
-        .page {
-            display: none;
-        }
-
-        .page.active {
-            display: block;
-        }
-
-        input, textarea, select {
+        .page { display: none; }
+        .page.active { display: block; }
+        h1 { color: var(--primary); text-align: center; margin-bottom: 20px; }
+        input, textarea, select, button {
             width: 100%;
             padding: 12px;
-            margin: 10px 0;
+            margin: 8px 0;
             border: 2px solid #ddd;
             border-radius: 10px;
-            font-size: 16px;
-            font-family: inherit;
+            font-size: 15px;
         }
-
         input:focus, textarea:focus, select:focus {
-            outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+            outline: none;
         }
-
         button {
-            width: 100%;
-            padding: 14px;
             background: var(--primary);
             color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            margin: 10px 0;
+            border: none;
             transition: all 0.3s;
         }
-
         button:hover {
             background: #5568d3;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            transform: translateY(-1px);
         }
-
-        button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .btn-secondary {
-            background: #6c757d;
-        }
-
-        .btn-secondary:hover {
-            background: #5a6268;
-        }
-
-        .btn-danger {
-            background: var(--danger);
-        }
-
-        .btn-danger:hover {
-            background: #c82333;
-        }
-
-        .btn-small {
-            width: auto;
-            padding: 8px 20px;
-            font-size: 14px;
-            display: inline-block;
-        }
-
+        .btn-danger { background: var(--danger); }
+        .btn-secondary { background: #6c757d; }
+        .btn-small { width: auto; padding: 8px 16px; display: inline-block; }
         .logout-btn {
             background: var(--danger);
             width: auto;
@@ -134,7 +71,6 @@
             float: right;
             margin-bottom: 20px;
         }
-
         .card {
             background: var(--light);
             padding: 20px;
@@ -142,694 +78,323 @@
             border-radius: 10px;
             border-left: 4px solid var(--primary);
         }
-
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             gap: 15px;
             margin: 20px 0;
         }
-
         .stat-box {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
-            padding: 20px;
+            padding: 15px;
             border-radius: 10px;
             text-align: center;
         }
-
-        .stat-box h3 {
-            color: white;
-            font-size: 32px;
-            margin: 0;
-        }
-
-        .stat-box p {
-            margin: 5px 0 0 0;
-            opacity: 0.9;
-        }
-
+        .stat-box h3 { color: white; font-size: 28px; margin: 0; }
         .avatar {
-            width: 150px;
-            height: 150px;
-            margin: 20px auto;
-            border-radius: 50%;
-            background: var(--light);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 70px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            width: 120px; height: 120px; margin: 15px auto;
+            background: var(--light); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 60px; box-shadow: 0 5px 20px rgba(0,0,0,0.2);
         }
-
-        .avatar.speaking {
-            animation: speak 0.5s infinite alternate;
-        }
-
-        @keyframes speak {
-            from { transform: scale(1); }
-            to { transform: scale(1.05); }
-        }
-
+        .avatar.speaking { animation: speak 0.5s infinite alternate; }
+        @keyframes speak { from { transform: scale(1); } to { transform: scale(1.05); } }
         .question-box {
-            background: linear-gradient(135deg, var(--light) 0%, #e9ecef 100%);
-            padding: 25px;
-            border-radius: 10px;
-            margin: 20px 0;
-            border-left: 5px solid var(--primary);
+            background: linear-gradient(135deg, var(--light), #e9ecef);
+            padding: 20px; border-radius: 10px;
+            margin: 15px 0; border-left: 5px solid var(--primary);
         }
-
-        .question-text {
-            font-size: 18px;
-            line-height: 1.8;
-            color: var(--dark);
-            margin: 15px 0;
-        }
-
-        .answer-box {
-            background: white;
-            border: 2px solid var(--primary);
-            padding: 25px;
-            border-radius: 10px;
-            margin: 20px 0;
-        }
-
+        .question-text { font-size: 18px; line-height: 1.7; color: #333; margin: 10px 0; }
+        .answer-box { border: 2px solid var(--primary); padding: 20px; border-radius: 10px; margin: 15px 0; }
         .score-badge {
-            display: inline-block;
-            padding: 12px 25px;
-            background: var(--success);
-            color: white;
-            border-radius: 25px;
-            font-size: 20px;
-            font-weight: bold;
-            margin: 10px 0;
+            display: inline-block; padding: 10px 20px; background: var(--success);
+            color: white; border-radius: 25px; font-size: 18px; font-weight: bold;
         }
-
-        .score-badge.low {
-            background: var(--danger);
+        .score-badge.low { background: var(--danger); }
+        .score-badge.medium { background: var(--warning); color: #333; }
+        .mic-btn {
+            width: 80px; height: 80px; border-radius: 50%; background: var(--danger);
+            color: white; font-size: 35px; margin: 15px auto; display: block;
+            cursor: pointer; border: none; box-shadow: 0 5px 20px rgba(220,53,69,0.4);
         }
-
-        .score-badge.medium {
-            background: var(--warning);
-            color: var(--dark);
-        }
-
-        .mic-button {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: var(--danger);
-            color: white;
-            font-size: 40px;
-            margin: 20px auto;
-            display: block;
-            cursor: pointer;
-            border: none;
-            box-shadow: 0 10px 30px rgba(220, 53, 69, 0.4);
-            transition: all 0.3s;
-        }
-
-        .mic-button:hover {
-            transform: scale(1.1);
-        }
-
-        .mic-button.recording {
-            animation: pulse 1s infinite;
-            background: var(--success);
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
+        .mic-btn.recording { background: var(--success); animation: pulse 1s infinite; }
+        @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
         .transcript {
-            background: #e9ecef;
-            padding: 20px;
-            border-radius: 10px;
-            min-height: 100px;
-            margin: 15px 0;
-            border: 2px dashed #adb5bd;
-            line-height: 1.8;
-            max-height: 300px;
-            overflow-y: auto;
-            word-wrap: break-word;
+            background: #e9ecef; padding: 15px; border-radius: 10px;
+            min-height: 80px; margin: 10px 0; border: 2px dashed #adb5bd;
+            line-height: 1.7;
         }
-
-        .transcript.active {
-            border-color: var(--success);
-            background: #d4edda;
-        }
-
-        .timer {
-            font-size: 32px;
-            text-align: center;
-            color: var(--primary);
-            font-weight: bold;
-            margin: 20px 0;
-            font-family: 'Courier New', monospace;
-        }
-
-        .timer.warning {
-            color: var(--danger);
-            animation: blink 1s infinite;
-        }
-
-        @keyframes blink {
-            0%, 50%, 100% { opacity: 1; }
-            25%, 75% { opacity: 0.5; }
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 40px;
-            background: #e9ecef;
-            border-radius: 20px;
-            overflow: hidden;
-            margin: 20px 0;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
-            transition: width 0.5s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
+        .transcript.active { border-color: var(--success); background: #d4edda; }
+        .timer { font-size: 28px; text-align: center; color: var(--primary); font-weight: bold; margin: 15px 0; font-family: monospace; }
+        .timer.warning { color: var(--danger); animation: blink 1s infinite; }
+        @keyframes blink { 0%,50%,100%{opacity:1} 25%,75%{opacity:0.5} }
+        .progress-bar { width: 100%; height: 35px; background: #e9ecef; border-radius: 20px; overflow: hidden; margin: 15px 0; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); transition: width 0.5s; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
         .book-item {
-            background: var(--light);
-            padding: 20px;
-            margin: 10px 0;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: 2px solid transparent;
+            background: white; padding: 15px; margin: 10px 0; border-radius: 10px;
+            border: 2px solid #e9ecef; transition: all 0.3s;
         }
-
-        .book-item:hover {
-            background: #e9ecef;
-            transform: translateX(5px);
-            border-color: var(--primary);
-        }
-
-        .book-item.selected {
-            background: #d4edda;
-            border-color: var(--success);
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 5px 12px;
-            background: var(--primary);
-            color: white;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-            margin: 0 5px;
-        }
-
-        .feedback {
-            background: #fff3cd;
-            border: 2px solid var(--warning);
-            padding: 20px;
-            border-radius: 10px;
-            margin: 15px 0;
-        }
-
-        .strength-item {
-            padding: 10px;
-            margin: 8px 0;
-            background: #d4edda;
-            border-left: 4px solid var(--success);
-            border-radius: 5px;
-        }
-
-        .improvement-item {
-            padding: 10px;
-            margin: 8px 0;
-            background: #fff3cd;
-            border-left: 4px solid var(--warning);
-            border-radius: 5px;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            max-width: 500px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 40px;
-        }
-
-        .loading::after {
-            content: "Processing...";
-            display: block;
-            margin-top: 10px;
-        }
-
-        .alert {
-            padding: 15px 20px;
-            border-radius: 10px;
-            margin: 15px 0;
-            border-left: 5px solid;
-        }
-
-        .alert-success {
-            background: #d4edda;
-            border-color: var(--success);
-            color: #155724;
-        }
-
-        .alert-danger {
-            background: #f8d7da;
-            border-color: var(--danger);
-            color: #721c24;
-        }
-
-        .alert-warning {
-            background: #fff3cd;
-            border-color: var(--warning);
-            color: #856404;
-        }
-
-        .topic-importance {
-            display: flex;
-            align-items: center;
-            margin: 10px 0;
-        }
-
-        .topic-bar {
-            flex-grow: 1;
-            height: 20px;
-            background: #e9ecef;
-            border-radius: 10px;
-            margin: 0 10px;
-            overflow: hidden;
-        }
-
-        .topic-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
-            transition: width 0.3s;
-        }
-
-        .topic-label {
-            min-width: 100px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
+        .book-item:hover { border-color: var(--primary); }
+        .book-item.selected { border-color: var(--success); background: #d4edda; }
+        .hidden { display: none !important; }
+        .badge { display: inline-block; padding: 4px 10px; background: var(--primary); color: white; border-radius: 10px; font-size: 12px; margin: 0 5px; }
+        .feedback { background: #fff3cd; border: 2px solid var(--warning); padding: 15px; border-radius: 10px; margin: 10px 0; }
+        .strength-item { padding: 8px; margin: 5px 0; background: #d4edda; border-left: 3px solid var(--success); border-radius: 5px; }
+        .improvement-item { padding: 8px; margin: 5px 0; background: #fff3cd; border-left: 3px solid var(--warning); border-radius: 5px; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; padding: 25px; border-radius: 20px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; }
+        .alert { padding: 12px 15px; border-radius: 10px; margin: 10px 0; border-left: 4px solid; }
+        .alert-success { background: #d4edda; border-color: var(--success); color: #155724; }
+        .alert-danger { background: #f8d7da; border-color: var(--danger); color: #721c24; }
         @media (max-width: 768px) {
-            .container {
-                padding: 15px;
-            }
-
-            h1 {
-                font-size: 20px;
-            }
-
-            .avatar {
-                width: 100px;
-                height: 100px;
-                font-size: 50px;
-            }
-
-            .mic-button {
-                width: 80px;
-                height: 80px;
-                font-size: 30px;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
+            .container { padding: 15px; }
+            .avatar { width: 80px; height: 80px; font-size: 40px; }
+            .mic-btn { width: 60px; height: 60px; font-size: 25px; }
+            h1 { font-size: 20px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
 
-        <!-- LOGIN PAGE -->
+        <!-- LOGIN -->
         <div class="page active" id="loginPage">
             <h1>🎓 Medical Viva Examiner</h1>
-            <div style="text-align: center; margin: 30px 0;">
+            <div style="text-align:center;margin:20px 0">
                 <div class="avatar">👨‍⚕️</div>
-                <p style="color: #666; font-size: 18px;">AI-Powered Viva Practice Platform</p>
+                <p style="color:#666">AI-Powered Viva Practice Platform</p>
             </div>
-
-            <div id="lockoutAlert" class="alert alert-danger hidden"></div>
-
-            <input 
-                type="text" 
-                id="username" 
-                placeholder="Username"
-                onkeypress="if(event.key==='Enter') login()">
-            <input 
-                type="password" 
-                id="password" 
-                placeholder="Password"
-                onkeypress="if(event.key==='Enter') login()">
+            <div id="lockoutMsg" class="alert alert-danger hidden"></div>
+            <input type="text" id="loginUser" placeholder="Username" onkeypress="if(event.key==='Enter')login()">
+            <input type="password" id="loginPass" placeholder="Password" onkeypress="if(event.key==='Enter')login()">
             <button onclick="login()" id="loginBtn">Login</button>
-
-            <div style="text-align: center; margin-top: 20px; color: #666;">
-                <p>Secure • No Tracking • No Demo Credentials</p>
-            </div>
+            <p style="text-align:center;color:#666;margin-top:15px;font-size:13px">🔒 Secure - No demo credentials exposed</p>
         </div>
 
-        <!-- ADMIN PAGE -->
+        <!-- ADMIN -->
         <div class="page" id="adminPage">
             <button class="logout-btn" onclick="logout()">Logout</button>
             <h1>📊 Admin Panel</h1>
-
             <div class="stats-grid">
-                <div class="stat-box">
-                    <h3 id="bookCount">0</h3>
-                    <p>Books</p>
-                </div>
-                <div class="stat-box">
-                    <h3 id="studentCount">0</h3>
-                    <p>Students</p>
-                </div>
-                <div class="stat-box">
-                    <h3 id="sessionCount">0</h3>
-                    <p>Sessions</p>
-                </div>
+                <div class="stat-box"><h3 id="statBooks">0</h3><p>Books</p></div>
+                <div class="stat-box"><h3 id="statStudents">0</h3><p>Students</p></div>
+                <div class="stat-box"><h3 id="statSessions">0</h3><p>Sessions</p></div>
             </div>
 
-            <!-- Upload PDF -->
             <div class="card">
-                <h3>📤 Upload Medical Book (PDF)</h3>
-                <input type="file" id="pdfFile" accept=".pdf" placeholder="Select PDF file">
-                <input type="text" id="bookTitle" placeholder="Book Title (Auto-filled from PDF)">
+                <h3>📤 Upload PDF Book</h3>
+                <input type="file" id="pdfInput" accept=".pdf">
+                <input type="text" id="bookTitle" placeholder="Book Title (auto-filled)">
                 <input type="text" id="bookSubject" placeholder="Subject">
                 <select id="bookDifficulty">
-                    <option value="basic">Basic Level</option>
-                    <option value="intermediate">Intermediate Level</option>
-                    <option value="advanced">Advanced Level</option>
+                    <option value="basic">Basic</option>
+                    <option value="intermediate">Intermediate</option>
+                    <option value="advanced">Advanced</option>
                 </select>
-                <button onclick="uploadPDF()" id="uploadBtn">📥 Upload & Extract</button>
-                <div id="uploadStatus"></div>
+                <button onclick="uploadPDF()">📥 Upload & Extract</button>
+                <div id="uploadResult"></div>
             </div>
 
-            <!-- Books List -->
             <div class="card">
                 <h3>📚 Uploaded Books</h3>
-                <div id="booksList"></div>
+                <div id="adminBooksList"></div>
             </div>
 
-            <!-- Add Student -->
             <div class="card">
                 <h3>👥 Add Student</h3>
-                <input type="text" id="studentUsername" placeholder="Username">
-                <input type="password" id="studentPassword" placeholder="Password">
-                <input type="email" id="studentEmail" placeholder="Email (optional)">
-                <button onclick="addStudent()">Add Student</button>
+                <input type="text" id="newStuUser" placeholder="Username">
+                <input type="password" id="newStuPass" placeholder="Password (min 6 chars)">
+                <button onclick="addStudent()">➕ Add</button>
             </div>
 
-            <!-- Students List -->
             <div class="card">
                 <h3>📋 Students</h3>
-                <div id="studentsList"></div>
-            </div>
-
-            <!-- Recent Activity -->
-            <div class="card">
-                <h3>📊 Recent Sessions</h3>
-                <div id="recentActivity"></div>
+                <div id="adminStudentsList"></div>
             </div>
         </div>
 
-        <!-- STUDENT PAGE -->
+        <!-- STUDENT -->
         <div class="page" id="studentPage">
             <button class="logout-btn" onclick="logout()">Logout</button>
-            <h1 id="studentTitle">Welcome</h1>
-
+            <h1 id="stuTitle">Welcome</h1>
             <div class="stats-grid">
-                <div class="stat-box">
-                    <h3 id="mySessions">0</h3>
-                    <p>Sessions Done</p>
-                </div>
-                <div class="stat-box">
-                    <h3 id="myAvg">-</h3>
-                    <p>Avg Score</p>
-                </div>
-                <div class="stat-box">
-                    <h3 id="myBest">-</h3>
-                    <p>Best Score</p>
-                </div>
+                <div class="stat-box"><h3 id="mySessCount">0</h3><p>Sessions</p></div>
+                <div class="stat-box"><h3 id="myAvgScore">-</h3><p>Average</p></div>
+                <div class="stat-box"><h3 id="myBestScore">-</h3><p>Best</p></div>
             </div>
 
-            <!-- Performance Chart -->
-            <div class="card">
-                <h3>📈 Performance</h3>
-                <canvas id="chart" width="400" height="200"></canvas>
-            </div>
+            <canvas id="chart" width="400" height="180" style="width:100%;height:auto;border-radius:10px;margin:10px 0"></canvas>
 
-            <!-- Select Books -->
             <div class="card">
                 <h3>📚 Select Books</h3>
-                <div id="booksList"></div>
+                <div id="stuBooksList"></div>
             </div>
 
-            <!-- Session Settings -->
             <div class="card">
-                <h3>⚙️ Session Settings</h3>
+                <h3>⚙️ Settings</h3>
                 <label>Duration:</label>
-                <select id="duration">
-                    <option value="15">15 Minutes</option>
-                    <option value="30">30 Minutes</option>
-                    <option value="45" selected>45 Minutes</option>
-                    <option value="60">60 Minutes</option>
+                <select id="sessionDuration">
+                    <option value="15">15 min</option><option value="30">30 min</option>
+                    <option value="45" selected>45 min</option><option value="60">60 min</option>
                 </select>
-
                 <label>Difficulty:</label>
-                <select id="difficulty">
-                    <option value="easy">Easy</option>
-                    <option value="medium" selected>Medium</option>
+                <select id="sessionDifficulty">
+                    <option value="easy">Easy</option><option value="medium" selected>Medium</option>
                     <option value="hard">Hard</option>
                 </select>
-
                 <label>Voice Speed:</label>
-                <select id="speed">
-                    <option value="0.8">Slow</option>
-                    <option value="0.9" selected>Normal</option>
+                <select id="voiceSpeed">
+                    <option value="0.8">Slow</option><option value="0.9" selected>Normal</option>
                     <option value="1.0">Fast</option>
                 </select>
-
-                <button onclick="startViva()" style="font-size: 18px; margin-top: 20px;">🎬 Start Session</button>
+                <button onclick="startViva()" style="font-size:18px;margin-top:15px">🎬 Start Session</button>
             </div>
 
-            <!-- Session History -->
             <div class="card">
                 <h3>📜 History</h3>
-                <div id="history"></div>
+                <div id="stuHistory"></div>
             </div>
         </div>
 
-        <!-- VIVA PAGE -->
+        <!-- VIVA -->
         <div class="page" id="vivaPage">
-            <div class="timer" id="timer">45:00</div>
+            <div class="timer" id="timerDisplay">45:00</div>
             <div class="progress-bar">
-                <div class="progress-fill" id="progress" style="width: 0%;">
-                    <span id="progressText">0/0</span>
-                </div>
+                <div class="progress-fill" id="progressFill" style="width:0%"><span id="progressText">0/0</span></div>
             </div>
-
-            <div class="avatar" id="avatar">👨‍⚕️</div>
-
+            <div class="avatar" id="vivaAvatar">👨‍⚕️</div>
             <div class="question-box">
-                <h3>Question:</h3>
-                <div class="question-text" id="question"></div>
-                <div style="margin-top: 15px;">
-                    <span class="badge" id="topic"></span>
-                    <span class="badge" id="qdifficulty"></span>
-                </div>
-                <button onclick="repeatQuestion()" class="btn-small btn-secondary">🔊 Repeat</button>
-                <button onclick="skipQuestion()" class="btn-small" style="background: var(--warning); margin-left: 10px;">⏭️ Skip</button>
+                <h4>Question:</h4>
+                <div class="question-text" id="questionText"></div>
+                <div><span class="badge" id="qTopic"></span><span class="badge" id="qDiff" style="background:var(--warning)"></span></div>
+                <button onclick="repeatQ()" class="btn-small btn-secondary" style="margin-top:10px">🔊 Repeat</button>
+                <button onclick="skipQ()" class="btn-small" style="background:var(--warning);margin-left:10px">⏭️ Skip</button>
             </div>
-
             <div class="answer-box">
-                <h3>Your Answer:</h3>
-                <button class="mic-button" id="micBtn" onclick="toggleMic()">🎤</button>
-                <p style="text-align: center; color: #666;" id="micStatus">Click to record</p>
-
-                <div class="transcript" id="transcript">Say your answer...</div>
-
-                <textarea id="textAnswer" rows="4" placeholder="Or type your answer..."></textarea>
-
-                <button onclick="submitAnswer()">✅ Submit</button>
+                <h4>Your Answer:</h4>
+                <button class="mic-btn" id="micBtn" onclick="toggleMic()">🎤</button>
+                <p style="text-align:center;color:#666" id="micStatus">Click mic to record</p>
+                <div class="transcript" id="transcriptArea">Your answer will appear here...</div>
+                <textarea id="manualAnswer" rows="3" placeholder="Or type here..."></textarea>
+                <button onclick="submitAns()">✅ Submit</button>
             </div>
-
-            <!-- Evaluation -->
-            <div id="evalSection" class="hidden">
+            <div id="evalBox" class="hidden">
                 <div class="feedback">
-                    <h3>📊 Evaluation</h3>
-                    <div class="score-badge" id="scoreShow"></div>
-                    <p id="feedback"></p>
-
-                    <h4 style="margin-top: 20px;">✅ Strengths:</h4>
-                    <div id="strengthsList"></div>
-
-                    <h4 style="margin-top: 20px;">💡 Improvements:</h4>
-                    <div id="improvementsList"></div>
+                    <h4>📊 Evaluation</h4>
+                    <div class="score-badge" id="scoreBadge">0/10</div>
+                    <p id="feedbackText"></p>
+                    <h4 style="margin-top:15px">✅ Strengths:</h4>
+                    <div id="strengths"></div>
+                    <h4 style="margin-top:10px">💡 Improvements:</h4>
+                    <div id="improvements"></div>
                 </div>
-                <button onclick="nextQuestion()">➡️ Next</button>
+                <button onclick="nextQ()">➡️ Next Question</button>
             </div>
-
-            <div style="text-align: center; margin-top: 20px;">
-                <button onclick="pauseSession()" class="btn-small btn-secondary">⏸️ Pause</button>
-                <button onclick="endSessionEarly()" class="btn-small btn-danger" style="margin-left: 10px;">🛑 End</button>
+            <div style="text-align:center;margin-top:15px">
+                <button onclick="pauseViva()" class="btn-small btn-secondary">⏸️ Pause</button>
+                <button onclick="endEarly()" class="btn-small btn-danger" style="margin-left:10px">🛑 End</button>
             </div>
         </div>
 
-    </div>
-
-    <!-- Summary Modal -->
-    <div class="modal" id="summaryModal">
-        <div class="modal-content">
-            <h2 style="text-align: center; color: var(--primary);">🎉 Session Complete!</h2>
-            <div id="summary"></div>
-            <button onclick="closeSummary()">Close</button>
-            <button onclick="downloadReport()" class="btn-secondary">📥 Download</button>
+        <!-- SUMMARY MODAL -->
+        <div class="modal" id="summaryModal">
+            <div class="modal-content">
+                <h2 style="text-align:center;color:var(--primary)">🎉 Complete!</h2>
+                <div id="summaryContent"></div>
+                <button onclick="closeSummary()">Close</button>
+                <button onclick="downloadReport()" class="btn-secondary">📥 Download Report</button>
+            </div>
         </div>
     </div>
-
-    <!-- PDF.js Library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
     <script>
-        // ===== SETUP PDF.JS =====
+        // === SETUP PDF.js ===
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-        // ===== GLOBAL STATE =====
+        // === STATE ===
         let currentUser = null;
-        let books = JSON.parse(localStorage.getItem('books') || '[]');
-        let users = JSON.parse(localStorage.getItem('users') || JSON.stringify([
+        let books = JSON.parse(localStorage.getItem('medVivaBooks') || '[]');
+        let users = JSON.parse(localStorage.getItem('medVivaUsers') || JSON.stringify([
             { username: 'admin', password: hashPass('admin123'), role: 'admin' },
             { username: 'student', password: hashPass('student123'), role: 'student' }
         ]));
-        let sessions = JSON.parse(localStorage.getItem('sessions') || '[]');
-        let loginAttempts = JSON.parse(localStorage.getItem('loginAttempts') || '{}');
+        let sessions = JSON.parse(localStorage.getItem('medVivaSessions') || '[]');
+        let attempts = JSON.parse(localStorage.getItem('medVivaAttempts') || '{}');
 
-        const MAX_ATTEMPTS = 5;
-        const LOCKOUT_TIME = 15 * 60 * 1000;
+        let recognition = null;
+        let isRec = false;
+        let trans = '';
+        let timer = null;
+        let timeLeft = 0;
 
         let viva = {
             questions: [],
             answers: [],
-            index: 0,
+            idx: 0,
             duration: 45,
             books: [],
             difficulty: 'medium',
             speed: 0.9
         };
 
-        let recognition = null;
-        let isRecording = false;
-        let transcript = '';
-        let timerInterval = null;
-        let timeLeft = 0;
-
-        // ===== INIT =====
+        // === INIT ===
         window.onload = () => {
             setupSpeech();
-            setupPWA();
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js').catch(()=>{});
+            }
         };
 
+        // === SPEECH ===
         function setupSpeech() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) return;
-
-            recognition = new SpeechRecognition();
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SR) return;
+            recognition = new SR();
             recognition.continuous = true;
             recognition.interimResults = true;
             recognition.lang = 'en-IN';
-
-            recognition.onresult = (event) => {
-                let interim = '';
-                for (let i = event.resultIndex; i < event.results.length; i++) {
-                    const t = event.results[i][0].transcript;
-                    if (event.results[i].isFinal) {
-                        transcript += t + ' ';
-                    } else {
-                        interim += t;
-                    }
+            recognition.onresult = (e) => {
+                let final = '';
+                for (let i = e.resultIndex; i < e.results.length; i++) {
+                    if (e.results[i].isFinal) final += e.results[i][0].transcript + ' ';
                 }
-                document.getElementById('transcript').textContent = transcript + interim;
-                document.getElementById('transcript').classList.add('active');
+                trans += final;
+                const el = document.getElementById('transcriptArea');
+                el.textContent = trans || 'Listening...';
+                el.classList.add('active');
             };
-
             recognition.onerror = () => {
-                document.getElementById('micStatus').textContent = 'Microphone error. Try typing instead.';
+                document.getElementById('micStatus').textContent = 'Mic error. Type instead.';
             };
         }
 
-        function setupPWA() {
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('sw.js').catch(() => {});
-            }
-        }
-
-        // ===== PASSWORD HASHING =====
-        function hashPass(pwd) {
+        // === HASH ===
+        function hashPass(p) {
             let h = 0;
-            for (let i = 0; i < pwd.length; i++) {
-                h = ((h << 5) - h) + pwd.charCodeAt(i);
+            for (let i = 0; i < p.length; i++) {
+                h = ((h << 5) - h) + p.charCodeAt(i);
                 h = h & h;
             }
             return Math.abs(h).toString(16);
         }
 
-        // ===== LOGIN =====
+        // === LOGIN ===
         function login() {
-            const user = document.getElementById('username').value.trim();
-            const pass = document.getElementById('password').value;
+            const user = document.getElementById('loginUser').value.trim();
+            const pass = document.getElementById('loginPass').value;
             const btn = document.getElementById('loginBtn');
 
-            if (!user || !pass) {
-                alert('Enter username and password');
-                return;
-            }
+            if (!user || !pass) { alert('Enter credentials'); return; }
 
             // Check lockout
-            if (loginAttempts[user] && loginAttempts[user].count >= MAX_ATTEMPTS) {
-                const time = Date.now() - loginAttempts[user].last;
-                if (time < LOCKOUT_TIME) {
-                    const min = Math.ceil((LOCKOUT_TIME - time) / 60000);
-                    document.getElementById('lockoutAlert').classList.remove('hidden');
-                    document.getElementById('lockoutAlert').textContent = `🔒 Try again in ${min} minutes`;
+            if (attempts[user] && attempts[user].count >= 5) {
+                const elapsed = Date.now() - attempts[user].last;
+                if (elapsed < 900000) {
+                    const min = Math.ceil((900000 - elapsed) / 60000);
+                    document.getElementById('lockoutMsg').classList.remove('hidden');
+                    document.getElementById('lockoutMsg').textContent = `🔒 Locked. Try in ${min} min`;
                     btn.disabled = true;
                     return;
                 }
@@ -838,24 +403,28 @@
             const found = users.find(u => u.username === user && u.password === hashPass(pass));
 
             if (found) {
-                loginAttempts[user] = { count: 0 };
-                localStorage.setItem('loginAttempts', JSON.stringify(loginAttempts));
+                attempts[user] = { count: 0 };
+                localStorage.setItem('medVivaAttempts', JSON.stringify(attempts));
                 currentUser = found;
+                document.getElementById('lockoutMsg').classList.add('hidden');
+                btn.disabled = false;
+                document.getElementById('loginUser').value = '';
+                document.getElementById('loginPass').value = '';
                 showPage(found.role === 'admin' ? 'adminPage' : 'studentPage');
                 if (found.role === 'admin') loadAdmin();
                 else loadStudent();
             } else {
-                loginAttempts[user] = loginAttempts[user] || { count: 0 };
-                loginAttempts[user].count++;
-                loginAttempts[user].last = Date.now();
-                localStorage.setItem('loginAttempts', JSON.stringify(loginAttempts));
+                if (!attempts[user]) attempts[user] = { count: 0 };
+                attempts[user].count++;
+                attempts[user].last = Date.now();
+                localStorage.setItem('medVivaAttempts', JSON.stringify(attempts));
 
-                const left = MAX_ATTEMPTS - loginAttempts[user].count;
+                const left = 5 - attempts[user].count;
                 if (left > 0) {
                     alert(`Invalid. ${left} attempts left`);
                 } else {
-                    document.getElementById('lockoutAlert').classList.remove('hidden');
-                    document.getElementById('lockoutAlert').textContent = '🔒 Account locked for 15 minutes';
+                    document.getElementById('lockoutMsg').classList.remove('hidden');
+                    document.getElementById('lockoutMsg').textContent = '🔒 Locked for 15 minutes';
                     btn.disabled = true;
                 }
             }
@@ -865,10 +434,8 @@
             if (confirm('Logout?')) {
                 currentUser = null;
                 showPage('loginPage');
-                document.getElementById('username').value = '';
-                document.getElementById('password').value = '';
-                document.getElementById('lockoutAlert').classList.add('hidden');
                 document.getElementById('loginBtn').disabled = false;
+                document.getElementById('lockoutMsg').classList.add('hidden');
             }
         }
 
@@ -878,21 +445,22 @@
             document.getElementById(id).classList.add('active');
         }
 
-        // ===== PDF UPLOAD & EXTRACTION =====
+        // ========== PDF UPLOAD ==========
         async function uploadPDF() {
-            const file = document.getElementById('pdfFile').files[0];
-            if (!file) {
-                alert('Select PDF file');
-                return;
-            }
+            const file = document.getElementById('pdfInput').files[0];
+            if (!file) { alert('Select PDF'); return; }
 
-            document.getElementById('uploadStatus').innerHTML = '<div class="loading"></div>';
+            const rslt = document.getElementById('uploadResult');
+            rslt.innerHTML = '<div style="text-align:center;padding:20px">⏳ Extracting text from PDF...</div>';
 
             try {
-                const text = await extractPDFText(file);
+                const text = await extractText(file);
+                if (!text || text.length < 50) {
+                    rslt.innerHTML = '<div class="alert alert-danger">❌ PDF has very little text. Try another file.</div>';
+                    return;
+                }
+
                 const title = document.getElementById('bookTitle').value || file.name.replace('.pdf', '');
-                
-                // Extract important topics
                 const topics = extractTopics(text);
 
                 const book = {
@@ -901,439 +469,385 @@
                     subject: document.getElementById('bookSubject').value || 'Medical',
                     content: text,
                     difficulty: document.getElementById('bookDifficulty').value,
-                    uploadDate: new Date().toISOString(),
                     uploadedBy: currentUser.username,
-                    topics: topics
+                    topics: topics,
+                    date: new Date().toISOString()
                 };
 
                 books.push(book);
-                localStorage.setItem('books', JSON.stringify(books));
+                localStorage.setItem('medVivaBooks', JSON.stringify(books));
 
-                document.getElementById('uploadStatus').innerHTML = '<div class="alert alert-success">✅ Book uploaded successfully!</div>';
-                document.getElementById('pdfFile').value = '';
+                rslt.innerHTML = `<div class="alert alert-success">✅ "${title}" uploaded! ${topics.length} topics extracted.</div>`;
+                document.getElementById('pdfInput').value = '';
                 document.getElementById('bookTitle').value = '';
                 document.getElementById('bookSubject').value = '';
 
                 loadAdmin();
-            } catch (error) {
-                document.getElementById('uploadStatus').innerHTML = '<div class="alert alert-danger">❌ Error: ' + error.message + '</div>';
+            } catch (err) {
+                rslt.innerHTML = `<div class="alert alert-danger">❌ Error: ${err.message}</div>`;
             }
         }
 
-        async function extractPDFText(file) {
-            const pdf = await pdfjsLib.getDocument(URL.createObjectURL(file)).promise;
+        async function extractText(file) {
+            const data = await pdfjsLib.getDocument(URL.createObjectURL(file)).promise;
             let text = '';
-
-            for (let i = 1; i <= pdf.numPages; i++) {
-                const page = await pdf.getPage(i);
+            for (let i = 1; i <= data.numPages; i++) {
+                const page = await data.getPage(i);
                 const content = await page.getTextContent();
-                text += content.items.map(i => i.str).join(' ') + '\n';
+                text += content.items.map(item => item.str).join(' ') + '\n';
             }
-
             return text;
         }
 
-        // ===== EXTRACT IMPORTANT TOPICS =====
+        // ========== TOPIC EXTRACTION ==========
         function extractTopics(text) {
-            const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 30);
+            // Split into sentences
+            const sentences = text.split(/[.!?]+/).map(s => s.trim()).filter(s => s.length > 30);
             const topics = [];
+            const seen = new Set();
 
-            sentences.forEach(sent => {
-                const words = sent.trim().split(/\s+/).slice(0, 6);
-                if (words.length >= 3) {
-                    const topic = words.join(' ');
-                    if (topic.length > 15 && !topics.includes(topic)) {
-                        topics.push(topic);
-                    }
+            sentences.forEach(s => {
+                // Take first 3-7 words as topic
+                const words = s.split(/\s+/).slice(0, Math.min(7, Math.max(3, Math.floor(s.length / 50))));
+                const topic = words.join(' ').replace(/[,;:()]/g, '').trim();
+                if (topic.length > 15 && !seen.has(topic.toLowerCase())) {
+                    seen.add(topic.toLowerCase());
+                    topics.push(topic);
                 }
             });
 
-            return topics.slice(0, 20); // Top 20 topics
+            return topics.slice(0, 30); // Max 30 topics
         }
 
-        // ===== ADMIN FUNCTIONS =====
+        // ========== ADMIN ==========
         function loadAdmin() {
-            document.getElementById('bookCount').textContent = books.length;
-            document.getElementById('studentCount').textContent = users.filter(u => u.role === 'student').length;
-            document.getElementById('sessionCount').textContent = sessions.length;
+            document.getElementById('statBooks').textContent = books.length;
+            document.getElementById('statStudents').textContent = users.filter(u => u.role === 'student').length;
+            document.getElementById('statSessions').textContent = sessions.length;
 
             // Books
-            let html = '';
-            books.forEach(b => {
-                html += `
-                    <div class="book-item">
-                        <strong>${b.title}</strong> - ${b.subject}
-                        <br><small>${b.topics.length} topics | ${b.difficulty}</small>
-                        <button onclick="deleteBook(${b.id})" class="btn-small btn-danger" style="margin-top: 10px;">Delete</button>
-                    </div>
-                `;
-            });
-            document.getElementById('booksList').innerHTML = html || '<p>No books</p>';
+            let html = books.map(b => `
+                <div class="book-item">
+                    <strong>${b.title}</strong> — ${b.subject}
+                    <br><small>📊 ${b.topics.length} topics | ${b.difficulty} | ${new Date(b.date).toLocaleDateString()}</small>
+                    <br><button onclick="delBook(${b.id})" class="btn-small btn-danger" style="margin-top:8px">Delete</button>
+                </div>
+            `).join('');
+            document.getElementById('adminBooksList').innerHTML = html || '<p style="color:#666">No books uploaded yet</p>';
 
             // Students
-            html = '';
-            users.filter(u => u.role === 'student').forEach(s => {
-                const sess = sessions.filter(session => session.username === s.username);
-                html += `
-                    <div class="book-item">
-                        <strong>${s.username}</strong>
-                        <br><small>Sessions: ${sess.length}</small>
-                    </div>
-                `;
-            });
-            document.getElementById('studentsList').innerHTML = html || '<p>No students</p>';
-
-            // Recent
-            html = '';
-            sessions.slice(-5).reverse().forEach(s => {
-                html += `
-                    <div class="book-item">
-                        <strong>${s.username}</strong> - ${s.score}/10 (${s.grade})
-                        <br><small>${new Date(s.date).toLocaleString()}</small>
-                    </div>
-                `;
-            });
-            document.getElementById('recentActivity').innerHTML = html || '<p>No activity</p>';
+            html = users.filter(u => u.role === 'student').map(s => {
+                const sess = sessions.filter(x => x.username === s.username);
+                return `<div class="book-item"><strong>${s.username}</strong><br><small>Sessions: ${sess.length}</small></div>`;
+            }).join('');
+            document.getElementById('adminStudentsList').innerHTML = html || '<p style="color:#666">No students</p>';
         }
 
-        function deleteBook(id) {
-            if (confirm('Delete book?')) {
+        function delBook(id) {
+            if (confirm('Delete this book?')) {
                 books = books.filter(b => b.id !== id);
-                localStorage.setItem('books', JSON.stringify(books));
+                localStorage.setItem('medVivaBooks', JSON.stringify(books));
                 loadAdmin();
             }
         }
 
         function addStudent() {
-            const user = document.getElementById('studentUsername').value.trim();
-            const pass = document.getElementById('studentPassword').value;
-
-            if (!user || !pass || pass.length < 6) {
-                alert('Valid username and password required');
-                return;
-            }
-
-            if (users.find(u => u.username === user)) {
-                alert('Username exists');
-                return;
-            }
-
-            users.push({
-                username: user,
-                password: hashPass(pass),
-                role: 'student'
-            });
-
-            localStorage.setItem('users', JSON.stringify(users));
-            document.getElementById('studentUsername').value = '';
-            document.getElementById('studentPassword').value = '';
-            document.getElementById('studentEmail').value = '';
+            const user = document.getElementById('newStuUser').value.trim();
+            const pass = document.getElementById('newStuPass').value;
+            if (!user || pass.length < 6) { alert('Username + password (min 6 chars)'); return; }
+            if (users.find(u => u.username === user)) { alert('Username exists'); return; }
+            users.push({ username: user, password: hashPass(pass), role: 'student' });
+            localStorage.setItem('medVivaUsers', JSON.stringify(users));
+            document.getElementById('newStuUser').value = '';
+            document.getElementById('newStuPass').value = '';
             loadAdmin();
         }
 
-        // ===== STUDENT FUNCTIONS =====
+        // ========== STUDENT ==========
         function loadStudent() {
-            document.getElementById('studentTitle').textContent = `Welcome, ${currentUser.username}!`;
+            document.getElementById('stuTitle').textContent = `Welcome, ${currentUser.username}!`;
 
             const mySess = sessions.filter(s => s.username === currentUser.username);
-            document.getElementById('mySessions').textContent = mySess.length;
-
+            document.getElementById('mySessCount').textContent = mySess.length;
             if (mySess.length > 0) {
-                const avg = (mySess.reduce((a, b) => a + parseFloat(b.score), 0) / mySess.length).toFixed(1);
+                const avg = (mySess.reduce((a,b) => a + parseFloat(b.score), 0) / mySess.length).toFixed(1);
                 const best = Math.max(...mySess.map(s => parseFloat(s.score))).toFixed(1);
-                document.getElementById('myAvg').textContent = avg;
-                document.getElementById('myBest').textContent = best;
+                document.getElementById('myAvgScore').textContent = avg;
+                document.getElementById('myBestScore').textContent = best;
             }
 
             drawChart(mySess);
 
             // Books
-            let html = '';
-            books.forEach(b => {
-                html += `
-                    <div class="book-item" onclick="toggleBook(${b.id})">
-                        <input type="checkbox" id="book${b.id}" onclick="event.stopPropagation();">
-                        <strong>${b.title}</strong>
-                        <br><small>${b.topics.length} topics</small>
-                    </div>
-                `;
-            });
-            document.getElementById('booksList').innerHTML = html || '<p>No books available</p>';
+            let html = books.map(b => `
+                <div class="book-item" onclick="toggleBookSel(${b.id})">
+                    <input type="checkbox" id="bookChk${b.id}" onclick="event.stopPropagation()">
+                    <strong>${b.title}</strong> — ${b.subject}
+                    <br><small>📊 ${b.topics.length} topics | ${b.difficulty}</small>
+                </div>
+            `).join('');
+            document.getElementById('stuBooksList').innerHTML = html || '<p style="color:#666">No books available</p>';
 
             // History
-            html = '';
-            mySess.reverse().forEach((s, i) => {
-                html += `
-                    <div class="book-item">
-                        <strong>Session ${mySess.length - i}</strong>
-                        <br>Score: <strong>${s.score}/10</strong> (${s.grade})
-                        <br><small>${new Date(s.date).toLocaleString()}</small>
-                    </div>
-                `;
-            });
-            document.getElementById('history').innerHTML = html || '<p>No sessions yet</p>';
+            html = mySess.reverse().map((s, i) => `
+                <div class="book-item">
+                    <strong>Session ${mySess.length - i}</strong>
+                    <br>Score: ${s.score}/10 (${s.grade}) | ${s.questions} questions
+                    <br><small>${new Date(s.date).toLocaleString()}</small>
+                </div>
+            `).join('');
+            document.getElementById('stuHistory').innerHTML = html || '<p style="color:#666">No sessions yet</p>';
         }
 
-        function drawChart(sessions) {
+        function drawChart(mySess) {
             const canvas = document.getElementById('chart');
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            if (sessions.length === 0) {
+            if (mySess.length === 0) {
                 ctx.fillStyle = '#666';
                 ctx.font = '14px Arial';
                 ctx.textAlign = 'center';
-                ctx.fillText('Complete sessions to see chart', canvas.width / 2, canvas.height / 2);
+                ctx.fillText('Complete sessions to see chart', canvas.width/2, canvas.height/2);
                 return;
             }
 
-            const scores = sessions.map(s => parseFloat(s.score));
-            const h = canvas.height - 40;
-            const w = canvas.width - 40;
-            const barW = w / scores.length - 5;
+            const scores = mySess.map(s => parseFloat(s.score));
+            const h = canvas.height - 30;
+            const w = canvas.width - 30;
+            const barW = Math.min(30, (w / scores.length) - 5);
 
             scores.forEach((score, i) => {
-                const barH = (score / 10) * h;
-                const x = 20 + (i * (barW + 5));
-                const y = canvas.height - 20 - barH;
+                const barH = (score / 10) * h * 0.9;
+                const x = 15 + (i * (barW + 5));
+                const y = canvas.height - 15 - barH;
 
                 ctx.fillStyle = score >= 8 ? '#28a745' : score >= 6 ? '#ffc107' : '#dc3545';
                 ctx.fillRect(x, y, barW, barH);
-
                 ctx.fillStyle = '#000';
-                ctx.font = '12px Arial';
+                ctx.font = '10px Arial';
                 ctx.textAlign = 'center';
-                ctx.fillText(score, x + barW / 2, y - 5);
+                ctx.fillText(score, x + barW/2, y - 3);
             });
         }
 
-        function toggleBook(id) {
-            const cb = document.getElementById('book' + id);
+        function toggleBookSel(id) {
+            const cb = document.getElementById('bookChk' + id);
             cb.checked = !cb.checked;
+            cb.closest('.book-item').classList.toggle('selected');
         }
 
-        // ===== START VIVA =====
+        // ========== VIVA ==========
         function startViva() {
-            const selected = Array.from(document.querySelectorAll('[id^="book"]:checked')).map(cb => {
-                const id = parseInt(cb.id.replace('book', ''));
-                return books.find(b => b.id === id);
+            const selected = books.filter(b => {
+                const cb = document.getElementById('bookChk' + b.id);
+                return cb && cb.checked;
             });
 
-            if (selected.length === 0) {
-                alert('Select at least one book');
-                return;
-            }
+            if (selected.length === 0) { alert('Select at least one book'); return; }
 
             viva.books = selected;
-            viva.duration = parseInt(document.getElementById('duration').value);
-            viva.difficulty = document.getElementById('difficulty').value;
-            viva.speed = parseFloat(document.getElementById('speed').value);
+            viva.duration = parseInt(document.getElementById('sessionDuration').value);
+            viva.difficulty = document.getElementById('sessionDifficulty').value;
+            viva.speed = parseFloat(document.getElementById('voiceSpeed').value);
 
-            // Generate questions from topics
+            // Generate questions from all topics
             viva.questions = [];
             selected.forEach(book => {
                 book.topics.forEach(topic => {
                     viva.questions.push({
                         topic: topic,
                         book: book.title,
-                        difficulty: viva.difficulty,
-                        content: book.content
+                        difficulty: viva.difficulty
                     });
                 });
             });
 
-            // Shuffle
+            // Shuffle and limit
             viva.questions.sort(() => Math.random() - 0.5);
-            viva.questions = viva.questions.slice(0, Math.ceil(viva.duration / 5));
+            const maxQ = Math.ceil(viva.duration / 4);
+            viva.questions = viva.questions.slice(0, maxQ);
 
             viva.answers = [];
-            viva.index = 0;
-            transcript = '';
+            viva.idx = 0;
+            trans = '';
 
             showPage('vivaPage');
-            displayQuestion();
+            showQ();
             startTimer();
         }
 
-        function displayQuestion() {
-            const q = viva.questions[viva.index];
-            document.getElementById('question').textContent = `Explain ${q.topic}`;
-            document.getElementById('topic').textContent = q.book;
-            document.getElementById('qdifficulty').textContent = q.difficulty.toUpperCase();
+        function showQ() {
+            const q = viva.questions[viva.idx];
+            document.getElementById('questionText').textContent = `Explain ${q.topic}`;
+            document.getElementById('qTopic').textContent = q.book;
+            document.getElementById('qDiff').textContent = q.difficulty.toUpperCase();
 
-            document.getElementById('evalSection').classList.add('hidden');
-            document.getElementById('transcript').textContent = 'Say your answer...';
-            document.getElementById('transcript').classList.remove('active');
-            document.getElementById('textAnswer').value = '';
-            transcript = '';
+            document.getElementById('evalBox').classList.add('hidden');
+            document.getElementById('transcriptArea').textContent = 'Your answer will appear here...';
+            document.getElementById('transcriptArea').classList.remove('active');
+            document.getElementById('manualAnswer').value = '';
+            trans = '';
 
             updateProgress();
-            repeatQuestion();
+            speakQ();
         }
 
         function updateProgress() {
-            const pct = ((viva.index + 1) / viva.questions.length) * 100;
-            document.getElementById('progress').style.width = pct + '%';
-            document.getElementById('progressText').textContent = `${viva.index + 1}/${viva.questions.length}`;
+            const p = ((viva.idx + 1) / viva.questions.length) * 100;
+            document.getElementById('progressFill').style.width = p + '%';
+            document.getElementById('progressText').textContent = `${viva.idx+1}/${viva.questions.length}`;
         }
 
-        function repeatQuestion() {
-            const q = viva.questions[viva.index];
-            const avatar = document.getElementById('avatar');
-            avatar.classList.add('speaking');
+        function speakQ() {
+            const q = viva.questions[viva.idx];
+            const av = document.getElementById('vivaAvatar');
+            av.classList.add('speaking');
 
-            const utterance = new SpeechSynthesisUtterance(`Explain ${q.topic}`);
-            utterance.lang = 'en-IN';
-            utterance.rate = viva.speed;
-
-            const voices = window.speechSynthesis.getVoices();
-            const voice = voices.find(v => v.lang.includes('en-IN')) || voices[0];
-            if (voice) utterance.voice = voice;
-
-            utterance.onend = () => avatar.classList.remove('speaking');
-            window.speechSynthesis.speak(utterance);
+            const u = new SpeechSynthesisUtterance(`Explain ${q.topic}`);
+            u.lang = 'en-IN';
+            u.rate = viva.speed;
+            const voices = speechSynthesis.getVoices();
+            const v = voices.find(x => x.lang.includes('en-IN')) || voices[0];
+            if (v) u.voice = v;
+            u.onend = () => av.classList.remove('speaking');
+            speechSynthesis.speak(u);
         }
+
+        function repeatQ() { speakQ(); }
 
         function toggleMic() {
-            if (!recognition) {
-                alert('Speech not supported. Type instead.');
-                return;
-            }
-
+            if (!recognition) { alert('Speech not supported. Type instead.'); return; }
             const btn = document.getElementById('micBtn');
-            if (!isRecording) {
-                recognition.start();
-                isRecording = true;
+            if (!isRec) {
+                try { recognition.start(); } catch(e) { return; }
+                isRec = true;
                 btn.classList.add('recording');
                 document.getElementById('micStatus').textContent = '🎤 Recording...';
             } else {
                 recognition.stop();
-                isRecording = false;
+                isRec = false;
                 btn.classList.remove('recording');
                 document.getElementById('micStatus').textContent = 'Click to record';
             }
         }
 
-        function submitAnswer() {
-            if (isRecording) toggleMic();
+        function submitAns() {
+            if (isRec) toggleMic();
+            const ans = trans || document.getElementById('manualAnswer').value;
+            if (!ans.trim()) { alert('Provide an answer'); return; }
 
-            const answer = transcript || document.getElementById('textAnswer').value;
-            if (!answer.trim()) {
-                alert('Provide an answer');
-                return;
-            }
+            const q = viva.questions[viva.idx];
+            const evalResult = evalAnswer(ans, q);
+            viva.answers.push({ q, ans, score: evalResult.score });
 
-            const q = viva.questions[viva.index];
-            const score = evaluate(answer, q);
-
-            viva.answers.push({ q, answer, score });
-
-            showEval(score, q);
+            showEval(evalResult);
         }
 
-        function evaluate(answer, q) {
-            const wordCount = answer.split(/\s+/).length;
+        function evalAnswer(ans, q) {
+            const wc = ans.split(/\s+/).length;
             let score = 5;
 
-            // Length
-            if (wordCount >= 80) score += 2;
-            else if (wordCount >= 50) score += 1;
+            // Length bonus
+            if (wc >= 80) score += 2.5;
+            else if (wc >= 50) score += 1.5;
+            else if (wc >= 30) score += 0.5;
 
             // Topic match
-            const keywords = q.topic.toLowerCase().split(/\s+/);
-            const ansLower = answer.toLowerCase();
-            const matches = keywords.filter(kw => ansLower.includes(kw)).length;
-            score += Math.min(matches, 2);
+            const words = q.topic.toLowerCase().split(/\s+/).filter(w => w.length > 3);
+            const ansLow = ans.toLowerCase();
+            const matches = words.filter(w => ansLow.includes(w)).length;
+            score += Math.min(matches * 0.7, 2.5);
 
-            // Difficulty
+            // Difficulty adjustment
             if (q.difficulty === 'easy' && score > 7) score += 0.5;
-            if (q.difficulty === 'hard' && score > 5) score += 1;
+            if (q.difficulty === 'hard' && score > 5) score += 0.5;
 
-            return Math.min(Math.max(score, 0), 10).toFixed(1);
+            return {
+                score: Math.min(Math.max(parseFloat(score.toFixed(1)), 0), 10),
+                wc: wc,
+                matches: matches
+            };
         }
 
-        function showEval(score, q) {
-            const badge = document.getElementById('scoreShow');
-            badge.textContent = `${score}/10`;
+        function showEval(evalResult) {
+            const badge = document.getElementById('scoreBadge');
+            badge.textContent = `${evalResult.score}/10`;
             badge.className = 'score-badge';
-            if (score < 6) badge.classList.add('low');
-            else if (score < 8) badge.classList.add('medium');
+            if (evalResult.score < 6) badge.classList.add('low');
+            else if (evalResult.score < 8) badge.classList.add('medium');
 
             let feed = '';
-            if (score >= 8) feed = '🌟 Excellent understanding!';
-            else if (score >= 6) feed = '✅ Good answer with room for improvement';
-            else feed = '⚠️ Review the topic more';
+            if (evalResult.score >= 8) feed = '🌟 Excellent! Very thorough answer.';
+            else if (evalResult.score >= 6) feed = '✅ Good answer. Add more clinical relevance.';
+            else feed = '⚠️ Needs improvement. Revise the topic.';
 
-            document.getElementById('feedback').textContent = feed;
+            document.getElementById('feedbackText').textContent = feed;
+            document.getElementById('strengths').innerHTML = evalResult.wc > 50 
+                ? `<div class="strength-item">✓ Good length (${evalResult.wc} words)</div>`
+                : `<div class="strength-item">✓ Attempted the question</div>`;
+            
+            let imp = '';
+            if (evalResult.wc < 50) imp += '<div class="improvement-item">→ Provide more detail</div>';
+            if (evalResult.matches < 2) imp += '<div class="improvement-item">→ Include more specific terminology</div>';
+            if (evalResult.score < 7) imp += '<div class="improvement-item">→ Add clinical examples</div>';
+            document.getElementById('improvements').innerHTML = imp || '<div class="improvement-item">→ Minor refinements</div>';
 
-            let str = score >= 7 ? '✓ Good detail<br>✓ Proper terms' : '✓ Attempted the question';
-            document.getElementById('strengthsList').innerHTML = str;
-
-            let imp = score < 7 ? '→ Add more clinical examples<br>→ Include related concepts' : '→ Minor improvements';
-            document.getElementById('improvementsList').innerHTML = imp;
-
-            document.getElementById('evalSection').classList.remove('hidden');
+            document.getElementById('evalBox').classList.remove('hidden');
         }
 
-        function nextQuestion() {
-            viva.index++;
-            if (viva.index >= viva.questions.length) {
+        function nextQ() {
+            viva.idx++;
+            if (viva.idx >= viva.questions.length) {
                 endViva();
             } else {
-                transcript = '';
-                displayQuestion();
+                trans = '';
+                showQ();
             }
         }
 
-        function skipQuestion() {
-            if (confirm('Skip and lose points?')) {
-                viva.answers.push({ skipped: true });
-                nextQuestion();
+        function skipQ() {
+            if (confirm('Skip question?')) {
+                viva.answers.push({ skipped: true, q: viva.questions[viva.idx] });
+                nextQ();
             }
         }
 
         function startTimer() {
             timeLeft = viva.duration * 60;
-            timerInterval = setInterval(() => {
+            timer = setInterval(() => {
                 timeLeft--;
                 const m = Math.floor(timeLeft / 60);
                 const s = timeLeft % 60;
-                document.getElementById('timer').textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-
-                if (timeLeft <= 300) {
-                    document.getElementById('timer').classList.add('warning');
-                }
-
-                if (timeLeft <= 0) {
-                    clearInterval(timerInterval);
-                    endViva();
-                }
+                document.getElementById('timerDisplay').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+                if (timeLeft <= 300) document.getElementById('timerDisplay').classList.add('warning');
+                if (timeLeft <= 0) { clearInterval(timer); endViva(); }
             }, 1000);
         }
 
-        function pauseSession() {
-            if (confirm('Pause session?')) {
-                clearInterval(timerInterval);
-                alert('Paused. Click resume to continue.');
-                // Re-implement resume
-            }
+        function pauseViva() {
+            clearInterval(timer);
+            alert('Session paused. Reload to continue (progress saved in memory only).');
         }
 
-        function endSessionEarly() {
-            if (confirm('End and save?')) {
-                clearInterval(timerInterval);
+        function endEarly() {
+            if (confirm('End and save current progress?')) {
+                clearInterval(timer); speechSynthesis.cancel();
+                if (isRec) toggleMic();
                 endViva();
             }
         }
 
         function endViva() {
-            clearInterval(timerInterval);
-            window.speechSynthesis.cancel();
-            if (isRecording) toggleMic();
+            clearInterval(timer);
+            speechSynthesis.cancel();
+            if (isRec) toggleMic();
 
             const total = viva.answers.reduce((a, b) => a + (b.score ? parseFloat(b.score) : 0), 0);
-            const avgScore = (total / viva.answers.length).toFixed(1);
-            const grade = avgScore >= 9 ? 'A+' : avgScore >= 8 ? 'A' : avgScore >= 7 ? 'B+' : avgScore >= 6 ? 'B' : avgScore >= 5 ? 'C' : 'D';
+            const count = viva.answers.filter(a => !a.skipped).length;
+            const avg = count > 0 ? (total / count).toFixed(1) : '0.0';
+
+            const grade = avg >= 9 ? 'A+' : avg >= 8 ? 'A' : avg >= 7 ? 'B+' : avg >= 6 ? 'B' : avg >= 5 ? 'C' : 'D';
 
             const session = {
                 username: currentUser.username,
@@ -1342,40 +856,26 @@
                 duration: viva.duration,
                 questions: viva.questions.length,
                 answers: viva.answers,
-                score: avgScore,
+                score: avg,
                 grade: grade
             };
 
             sessions.push(session);
-            localStorage.setItem('sessions', JSON.stringify(sessions));
+            localStorage.setItem('medVivaSessions', JSON.stringify(sessions));
 
-            showSummary(session);
-        }
-
-        function showSummary(session) {
-            const modal = document.getElementById('summaryModal');
-            let html = `
+            // Show summary
+            document.getElementById('summaryContent').innerHTML = `
                 <div class="stats-grid">
-                    <div class="stat-box">
-                        <h3>${session.score}</h3>
-                        <p>Score</p>
-                    </div>
-                    <div class="stat-box">
-                        <h3>${session.grade}</h3>
-                        <p>Grade</p>
-                    </div>
-                    <div class="stat-box">
-                        <h3>${session.questions}</h3>
-                        <p>Questions</p>
-                    </div>
+                    <div class="stat-box"><h3>${avg}</h3><p>Score</p></div>
+                    <div class="stat-box"><h3>${grade}</h3><p>Grade</p></div>
+                    <div class="stat-box"><h3>${count}</h3><p>Answered</p></div>
                 </div>
                 <div class="card">
-                    <h3>Recommendations</h3>
-                    <p>${session.score >= 8 ? '🌟 Excellent! Keep practicing hard questions.' : '📚 Review topics and practice more.'}</p>
+                    <h4>💡 Suggestions</h4>
+                    <p>${avg >= 8 ? '🌟 Excellent work! Keep practicing.' : avg >= 6 ? '✅ Good effort. Review weak areas.' : '📚 Focus on basics and practice more.'}</p>
                 </div>
             `;
-            document.getElementById('summary').innerHTML = html;
-            modal.classList.add('active');
+            document.getElementById('summaryModal').classList.add('active');
         }
 
         function closeSummary() {
@@ -1385,22 +885,20 @@
         }
 
         function downloadReport() {
-            const session = sessions[sessions.length - 1];
-            let report = `Medical Viva Report\n`;
-            report += `Name: ${session.username}\n`;
-            report += `Date: ${new Date(session.date).toLocaleString()}\n`;
-            report += `Score: ${session.score}/10 (${session.grade})\n`;
-            report += `Duration: ${session.duration} min\n`;
-            report += `Questions: ${session.questions}\n\n`;
+            const s = sessions[sessions.length - 1];
+            let txt = `--- MEDICAL VIVA REPORT ---\n\n`;
+            txt += `User: ${s.username}\nDate: ${new Date(s.date).toLocaleString()}\n`;
+            txt += `Books: ${s.books.join(', ')}\nDuration: ${s.duration} min\n`;
+            txt += `Score: ${s.score}/10 (${s.grade})\nQuestions: ${s.questions}\n\n`;
+            txt += `--- END REPORT ---`;
 
-            const blob = new Blob([report], { type: 'text/plain' });
+            const blob = new Blob([txt], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
             a.download = `viva-report-${Date.now()}.txt`;
             a.click();
         }
-
     </script>
 </body>
 </html>
